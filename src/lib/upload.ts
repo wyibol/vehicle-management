@@ -1,47 +1,30 @@
 /**
- * Upload an image file via OSS presigned URL and return the public URL.
+ * Upload an image file to Alibaba Cloud OSS and return the public URL.
  *
- * The file never passes through Vercel -- it goes directly to Alibaba Cloud OSS
- * in Tokyo (ap-northeast-1), bypassing Vercel's 4.5MB body limit entirely.
+ * The file goes through Vercel's serverless function but is already
+ * compressed to ~1600px (~200-500KB) on the client side, well within
+ * Vercel's 4.5MB body limit.
  */
 export async function uploadImage(file: File): Promise<string> {
-  const presignRes = await fetch("/api/upload/presign", {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/upload", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      fileName: file.name,
-      fileType: file.type,
-      fileSize: file.size,
-    }),
+    body: formData,
   });
 
-  if (!presignRes.ok) {
+  if (!res.ok) {
     let msg = "アップロードに失敗しました";
     try {
-      const data = await presignRes.json();
+      const data = await res.json();
       msg = data.error || msg;
     } catch {}
     throw new Error(msg);
   }
 
-  const { signedUrl, publicUrl } = await presignRes.json();
-
-  const uploadRes = await fetch(signedUrl, {
-    method: "PUT",
-    body: file,
-    headers: { "Content-Type": file.type },
-  });
-
-  if (!uploadRes.ok) {
-    let msg = "アップロードに失敗しました";
-    try {
-      const data = await uploadRes.json();
-      msg = data.error || msg;
-    } catch {}
-    throw new Error(msg);
-  }
-
-  return publicUrl;
+  const data = await res.json();
+  return data.url;
 }
 
 /**

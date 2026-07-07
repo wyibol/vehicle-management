@@ -1,6 +1,6 @@
 import OSS from "ali-oss";
 
-function getEnv(): { region: string; accessKeyId: string; accessKeySecret: string; bucket: string } {
+function getOssClientOnce(): OSS {
   const region = process.env.OSS_REGION;
   const accessKeyId = process.env.OSS_ACCESS_KEY_ID;
   const accessKeySecret = process.env.OSS_ACCESS_KEY_SECRET;
@@ -12,23 +12,21 @@ function getEnv(): { region: string; accessKeyId: string; accessKeySecret: strin
       "Set OSS_REGION, OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET, and OSS_BUCKET."
     );
   }
-  return { region, accessKeyId, accessKeySecret, bucket };
+  return new OSS({ region, accessKeyId, accessKeySecret, bucket });
 }
 
 let _ossClient: OSS | null = null;
-
 function getOssClient(): OSS {
-  if (_ossClient) return _ossClient;
-  const { region, accessKeyId, accessKeySecret, bucket } = getEnv();
-  _ossClient = new OSS({ region, accessKeyId, accessKeySecret, bucket });
+  if (!_ossClient) _ossClient = getOssClientOnce();
   return _ossClient;
 }
 
 export { getOssClient };
 
-export function getOssPublicUrl(objectKey: string): string {
-  const { region, bucket } = getEnv();
-  return `https://${bucket}.${region}.aliyuncs.com/${objectKey}`;
+export function getOssPublicUrl(): string {
+  const bucket = process.env.OSS_BUCKET;
+  const region = process.env.OSS_REGION;
+  return `https://${bucket}.${region}.aliyuncs.com`;
 }
 
 export function getOssObjectKey(publicUrl: string): string | null {
