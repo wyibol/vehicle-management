@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { resizeImage } from "@/lib/images";
 
 const POSITIONS = [
   { key: "front", label: "前" },
@@ -23,7 +24,7 @@ export default function PhotoUpload({ photos, onChange, existingUrls = {} }: Pho
   const [dragOverPosition, setDragOverPosition] = useState<string | null>(null);
 
   const handleFileSelect = useCallback(
-    (position: string, file: File | null) => {
+    async (position: string, file: File | null) => {
       if (!file) return;
 
       if (file.size > 20 * 1024 * 1024) {
@@ -36,7 +37,19 @@ export default function PhotoUpload({ photos, onChange, existingUrls = {} }: Pho
         return;
       }
 
-      onChange(position, file);
+      // Resize the image on the client to a reasonable max dimension.
+      // This reduces upload size and display load without needing any
+      // paid add-on like Supabase Image Transformation.
+      try {
+        const resizedBlob = await resizeImage(file);
+        const resizedFile = new File([resizedBlob], file.name, {
+          type: file.type,
+        });
+        onChange(position, resizedFile);
+      } catch {
+        // Fall back to the original image if resize fails
+        onChange(position, file);
+      }
     },
     [onChange]
   );
