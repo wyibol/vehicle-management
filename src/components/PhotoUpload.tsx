@@ -100,7 +100,6 @@ export default function PhotoUpload({ photos, onChange, existingUrls = {} }: Pho
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         className="hidden"
         onChange={handleInputChange}
       />
