@@ -1,11 +1,8 @@
 /**
- * Generate an optimized Supabase storage URL with image transformation.
+ * Generate an optimized image URL for Alibaba Cloud OSS with server-side
+ * image processing (resize). Append ?x-oss-process=image/resize,w_N.
  *
- * Converts /object/public/... to /render/image/public/...?width=X&quality=Y
- * Falls back to the original URL if it's not a Supabase storage URL.
- *
- * NOTE: This requires Supabase Image Transformation add-on (Pro plan).
- * Without it, the render endpoint serves the original image unchanged.
+ * OSS image processing is built into every bucket -- no paid add-on needed.
  */
 export function getOptimizedImageUrl(
   url: string | undefined | null,
@@ -15,16 +12,9 @@ export function getOptimizedImageUrl(
   if (!url) return "";
   try {
     const parsed = new URL(url);
-    if (
-      parsed.hostname.includes("supabase.co") &&
-      parsed.pathname.includes("/object/public/")
-    ) {
-      parsed.pathname = parsed.pathname.replace(
-        "/object/public/",
-        "/render/image/public/"
-      );
-      parsed.searchParams.set("width", String(width));
-      parsed.searchParams.set("quality", String(quality));
+    if (parsed.hostname.endsWith(".aliyuncs.com")) {
+      const params = `image/resize,w_${width}/quality,Q_${quality}`;
+      parsed.searchParams.set("x-oss-process", params);
       return parsed.toString();
     }
   } catch {}
@@ -34,9 +24,9 @@ export function getOptimizedImageUrl(
 /**
  * Resize an image on the client side before upload.
  *
- * Uses a canvas to downscale the image to at most maxWidth × maxHeight while
+ * Uses a canvas to downscale the image to at most maxWidth x maxHeight while
  * maintaining aspect ratio. This drastically reduces file size and improves
- * display performance without requiring any paid Supabase add-on.
+ * display performance.
  *
  * @returns A Blob with the same image type as the original.
  */

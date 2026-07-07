@@ -1,11 +1,10 @@
 /**
- * Upload an image file via presigned URL and return the public URL.
+ * Upload an image file via OSS presigned URL and return the public URL.
  *
- * This bypasses Vercel's 4.5MB serverless function body limit by having the
- * client upload the file directly to Supabase Storage.
+ * The file never passes through Vercel -- it goes directly to Alibaba Cloud OSS
+ * in Tokyo (ap-northeast-1), bypassing Vercel's 4.5MB body limit entirely.
  */
 export async function uploadImage(file: File): Promise<string> {
-  // Step 1: Request a presigned upload URL from our API (small JSON, no file data)
   const presignRes = await fetch("/api/upload/presign", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -27,7 +26,6 @@ export async function uploadImage(file: File): Promise<string> {
 
   const { signedUrl, publicUrl } = await presignRes.json();
 
-  // Step 2: Upload the file directly to Supabase Storage via the presigned URL
   const uploadRes = await fetch(signedUrl, {
     method: "PUT",
     body: file,
@@ -47,7 +45,7 @@ export async function uploadImage(file: File): Promise<string> {
 }
 
 /**
- * Delete an image from Supabase Storage using its public URL via API.
+ * Delete an image from Alibaba Cloud OSS using its public URL via API.
  */
 export async function deleteImageByUrl(imageUrl: string): Promise<void> {
   if (!imageUrl) return;
@@ -62,7 +60,7 @@ export async function deleteImageByUrl(imageUrl: string): Promise<void> {
 }
 
 /**
- * Delete multiple images from Supabase Storage.
+ * Delete multiple images from Alibaba Cloud OSS.
  */
 export async function deleteImagesByUrls(imageUrls: string[]): Promise<void> {
   const urls = imageUrls.filter(Boolean);

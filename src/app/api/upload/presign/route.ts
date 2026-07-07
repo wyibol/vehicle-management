@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getOssClient, getOssPublicUrl } from "@/lib/oss";
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,29 +28,18 @@ export async function POST(request: NextRequest) {
 
     const fileExt = fileName.split(".").pop() || "jpg";
     const uniqueName = `${crypto.randomUUID()}.${fileExt}`;
-    const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET || "vehicle-images";
 
-    const { data, error } = await supabaseAdmin.storage
-      .from(bucket)
-      .createSignedUploadUrl(uniqueName);
+    const signedUrl = getOssClient().signatureUrl(uniqueName, {
+      expires: 3600,
+      method: "PUT",
+      "Content-Type": fileType,
+    });
 
-    if (error) {
-      return NextResponse.json(
-        { error: `署名付きURLの生成に失敗しました: ${error.message}` },
-        { status: 500 }
-      );
-    }
+    const publicUrl = getOssPublicUrl(uniqueName);
 
-    const { data: urlData } = supabaseAdmin.storage
-      .from(bucket)
-      .getPublicUrl(uniqueName);
-
-    return NextResponse.json({
-      signedUrl: data.signedUrl,
-      path: data.path,
-      publicUrl: urlData.publicUrl,
-    }, { status: 200 });
+    return NextResponse.json({ signedUrl, publicUrl }, { status: 200 });
   } catch (error) {
+    console.error("OSS Presign Error:", error);
     return NextResponse.json(
       { error: "サーバーエラーが発生しました" },
       { status: 500 }
