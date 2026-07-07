@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
     const signedUrl = getOssClient().signatureUrl(uniqueName, {
       expires: 3600,
       method: "PUT",
-      "Content-Type": fileType,
     });
 
     const publicUrl = getOssPublicUrl(uniqueName);
