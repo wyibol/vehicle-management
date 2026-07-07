@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageViewer from "@/components/ImageViewer";
 import ConfirmDialog from "@/components/ConfirmDialog";
-import { getOptimizedImageUrl } from "@/lib/images";
 
 type Vehicle = {
   id: string;
@@ -120,7 +119,7 @@ export default function VehicleDetailPage({
   const allImages = POSITIONS.map((p) => {
     const imgUrl = vehicle[p.key] || vehicle[`${p.key}_image`];
     return {
-      src: getOptimizedImageUrl(imgUrl as string, 1200, 80),
+      src: imgUrl as string,
       alt: p.label,
     };
   }).filter((img) => img.src);
@@ -169,7 +168,7 @@ export default function VehicleDetailPage({
               <div className="aspect-[4/3] relative">
                 {imageUrl ? (
                   <img
-                    src={getOptimizedImageUrl(imageUrl, 400, 70)}
+                    src={imageUrl}
                     alt={label}
                     className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
                   />

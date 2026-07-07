@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { getOptimizedImageUrl, resizeImage } from "@/lib/images";
+import { resizeImage } from "@/lib/images";
 
 const POSITIONS = [
   { key: "front", label: "前" },
@@ -99,7 +99,7 @@ export default function PhotoUpload({ photos, onChange, existingUrls = {} }: Pho
   const getImageUrl = (position: string): string | null => {
     const photo = photos[position];
     if (!photo) return null;
-    if (typeof photo === "string") return getOptimizedImageUrl(photo, 400, 70);
+    if (typeof photo === "string") return photo;
     return URL.createObjectURL(photo);
   };
 
