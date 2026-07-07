@@ -1,38 +1,57 @@
-const CACHE_NAME = "vehicle-management-v2";
-const urlsToCache = [
+const CACHE_NAME = "vehicle-management-v4";
+const PRECACHE_URLS = [
   "/",
   "/vehicles/new",
 ];
+
+// Helper: check if a request is cross-origin
+function isCrossOrigin(url) {
+  try {
+    return new URL(url).origin !== self.location.origin;
+  } catch {
+    return true; // invalid URLs are treated as cross-origin
+  }
+}
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache);
+      return cache.addAll(PRECACHE_URLS);
     })
   );
 });
 
 self.addEventListener("fetch", (event) => {
-  // Cache API only supports GET requests.
-  // Skip POST, DELETE and other methods to avoid TypeError on cache.put().
+  // Skip non-GET requests (Cache API only supports GET)
   if (event.request.method !== "GET") {
     return;
   }
 
+  // Skip cross-origin requests (OSS images, third-party resources)
+  // These should go directly to the network without SW intervention
+  if (isCrossOrigin(event.request.url)) {
+    return;
+  }
+
+  // For same-origin navigation requests, use cache-first strategy
+  // For other same-origin requests, use network-first
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
         return response;
       }
       return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== "basic") {
+        // Only cache successful HTML page navigations
+        if (!response || response.status !== 200) {
           return response;
         }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
+        if (response.headers.get("content-type")?.includes("text/html")) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
         return response;
       });
     })
@@ -45,6 +64,6 @@ self.addEventListener("activate", (event) => {
       Promise.all(names.map((name) => {
         if (name !== CACHE_NAME) return caches.delete(name);
       }))
-    ).then(() => self.clients.claim())
+    ).then(() => clients.claim())
   );
 });

@@ -6,6 +6,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'uedexbkjzfzszmwekcky.supabase.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'chirashima.oss-ap-northeast-1.aliyuncs.com',
+      },
     ],
   },
 };

@@ -167,7 +167,7 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
 
       {/* Image */}
       <div className="flex items-center justify-center w-full h-full">
-        <img
+        <img referrerPolicy="origin"
           src={images[currentIndex].src}
           alt={images[currentIndex].alt}
           onDoubleClick={handleDoubleClick}

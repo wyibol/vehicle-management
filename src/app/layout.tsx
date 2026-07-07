@@ -10,7 +10,7 @@ export default function RootLayout({
 }) {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js");
+      navigator.serviceWorker.register("/sw.js?v=4");
     }
   }, []);
 
@@ -21,6 +21,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#3b82f6" />
         <meta name="description" content="車両情報管理アプリケーション" />
+        <meta name="referrer" content="origin" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/images/icon-192.png" />
         <title>車両管理</title>

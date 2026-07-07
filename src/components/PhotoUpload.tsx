@@ -134,7 +134,7 @@ export default function PhotoUpload({ photos, onChange, existingUrls = {} }: Pho
           >
             {hasPhoto(key) ? (
               <>
-                <img
+                <img referrerPolicy="origin"
                   src={getImageUrl(key) || ""}
                   alt={label}
                   className="w-full h-full object-cover"
