@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 
 interface ImageViewerProps {
   images: { src: string; alt: string }[];
@@ -10,142 +10,160 @@ interface ImageViewerProps {
 
 export default function ImageViewer({ images, initialIndex, onClose }: ImageViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [zoomState, setZoomState] = useState({ scale: 1, x: 0, y: 0 });
+  const [isAnimating, setIsAnimating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const touchRef = useRef({
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  // Use refs for touch tracking to avoid re-renders during pinch
+  const touch = useRef({
     startX: 0,
     startY: 0,
     startDist: 0,
     isPinching: false,
+    isSwiping: false,
     startScale: 1,
-    startPos: { x: 0, y: 0 },
+    startPosX: 0,
+    startPosY: 0,
+    lastPinchScale: 1,
   });
+  const rafId = useRef(0);
+  const currentImage = useMemo(() => images[currentIndex], [images, currentIndex]);
 
   const resetZoom = useCallback(() => {
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
+    setIsAnimating(true);
+    setZoomState({ scale: 1, x: 0, y: 0 });
+    setTimeout(() => setIsAnimating(false), 250);
   }, []);
 
   const goToPrev = useCallback(() => {
     if (currentIndex > 0) {
       resetZoom();
-      setCurrentIndex((i) => i - 1);
+      setCurrentIndex(currentIndex - 1);
     }
   }, [currentIndex, resetZoom]);
 
   const goToNext = useCallback(() => {
     if (currentIndex < images.length - 1) {
       resetZoom();
-      setCurrentIndex((i) => i + 1);
+      setCurrentIndex(currentIndex + 1);
     }
   }, [currentIndex, images.length, resetZoom]);
 
-  // Keyboard events
+  // Keyboard navigation
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const onKey = (e: KeyboardEvent) => {
       switch (e.key) {
-        case "Escape":
-          onClose();
-          break;
-        case "ArrowLeft":
-          goToPrev();
-          break;
-        case "ArrowRight":
-          goToNext();
-          break;
+        case "Escape": onClose(); break;
+        case "ArrowLeft": goToPrev(); break;
+        case "ArrowRight": goToNext(); break;
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [onClose, goToPrev, goToNext]);
 
   // Prevent body scroll
   useEffect(() => {
-    const original = document.body.style.overflow;
+    const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = original;
-    };
+    return () => { document.body.style.overflow = prev; };
   }, []);
 
-  // Touch handlers
+  // Throttle state updates via requestAnimationFrame
+  const applyZoom = useCallback((s: number, px: number, py: number) => {
+    if (rafId.current) return;
+    rafId.current = requestAnimationFrame(() => {
+      setZoomState({ scale: s, x: px, y: py });
+      rafId.current = 0;
+    });
+  }, []);
+
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touches = e.touches;
-    touchRef.current.startX = touches[0].clientX;
-    touchRef.current.startY = touches[0].clientY;
-    touchRef.current.startScale = scale;
-    touchRef.current.startPos = { ...position };
-    touchRef.current.isPinching = false;
-    setIsTransitioning(false);
+    const t = touch.current;
+    t.startX = touches[0].clientX;
+    t.startY = touches[0].clientY;
+    t.startScale = zoomState.scale;
+    t.startPosX = zoomState.x;
+    t.startPosY = zoomState.y;
+    t.isPinching = false;
+    t.isSwiping = false;
+    setIsAnimating(false);
 
     if (touches.length === 2) {
-      touchRef.current.isPinching = true;
+      t.isPinching = true;
       const dx = touches[0].clientX - touches[1].clientX;
       const dy = touches[0].clientY - touches[1].clientY;
-      touchRef.current.startDist = Math.sqrt(dx * dx + dy * dy);
+      t.startDist = Math.sqrt(dx * dx + dy * dy);
+      t.lastPinchScale = zoomState.scale;
+    } else if (touches.length === 1 && zoomState.scale === 1) {
+      t.isSwiping = true;
     }
-  }, [scale, position]);
+  }, [zoomState.scale, zoomState.x, zoomState.y]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     const touches = e.touches;
+    const t = touch.current;
 
-    if (touches.length === 2 && touchRef.current.isPinching) {
+    if (touches.length === 2 && t.isPinching) {
       e.preventDefault();
       const dx = touches[0].clientX - touches[1].clientX;
       const dy = touches[0].clientY - touches[1].clientY;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      const newScale = Math.max(1, Math.min(5, touchRef.current.startScale * (dist / touchRef.current.startDist)));
-      setScale(newScale);
-    } else if (touches.length === 1 && scale === 1 && !touchRef.current.isPinching) {
-      const deltaX = touches[0].clientX - touchRef.current.startX;
-      if (Math.abs(deltaX) > 10) {
-        setIsTransitioning(true);
-      }
-    } else if (touches.length === 1 && scale > 1) {
-      e.preventDefault();
-      const dx = touches[0].clientX - touchRef.current.startX;
-      const dy = touches[0].clientY - touchRef.current.startY;
-      setPosition({
-        x: touchRef.current.startPos.x + dx,
-        y: touchRef.current.startPos.y + dy,
-      });
-    }
-  }, [scale]);
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (touchRef.current.isPinching) {
-      touchRef.current.isPinching = false;
+      const raw = t.startScale * (dist / t.startDist);
+      const s = Math.max(1, Math.min(5, raw));
+      t.lastPinchScale = s;
+      applyZoom(s, t.startPosX, t.startPosY);
       return;
     }
 
-    if (scale === 1 && isTransitioning) {
-      const deltaX = e.changedTouches[0].clientX - touchRef.current.startX;
-      if (deltaX < -50) {
-        goToNext();
-      } else if (deltaX > 50) {
-        goToPrev();
-      }
-    }
-    setIsTransitioning(false);
-  }, [scale, isTransitioning, goToNext, goToPrev]);
+    if (touches.length === 1 && t.isPinching) return;
 
-  // Double-click to toggle zoom
-  const handleDoubleClick = useCallback(() => {
-    if (scale > 1) {
-      resetZoom();
-    } else {
-      setScale(2);
+    if (touches.length === 1 && zoomState.scale > 1) {
+      e.preventDefault();
+      applyZoom(
+        zoomState.scale,
+        t.startPosX + (touches[0].clientX - t.startX),
+        t.startPosY + (touches[0].clientY - t.startY)
+      );
     }
-  }, [scale, resetZoom]);
+  }, [zoomState.scale, applyZoom]);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const t = touch.current;
+    if (t.isPinching) {
+      t.isPinching = false;
+      return;
+    }
+    if (t.isSwiping && zoomState.scale === 1) {
+      const dx = e.changedTouches[0].clientX - t.startX;
+      if (Math.abs(dx) > 50) {
+        setIsAnimating(true);
+        setTimeout(() => setIsAnimating(false), 300);
+      }
+      if (dx < -50) goToNext();
+      else if (dx > 50) goToPrev();
+    }
+    t.isSwiping = false;
+  }, [zoomState.scale, goToNext, goToPrev]);
+
+  // Double-tap zoom toggle
+  const handleDoubleClick = useCallback(() => {
+    if (zoomState.scale > 1) resetZoom();
+    else setZoomState({ scale: 2.5, x: 0, y: 0 });
+  }, [zoomState.scale, resetZoom]);
 
   if (images.length === 0) return null;
+
+  const { scale, x, y } = zoomState;
+  const isZoomed = scale > 1;
 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 bg-black touch-none select-none"
+      className="fixed inset-0 z-50 bg-black select-none"
+      style={{ touchAction: "none" }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -165,23 +183,27 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
         {currentIndex + 1} / {images.length}
       </div>
 
-      {/* Image */}
-      <div className="flex items-center justify-center w-full h-full">
-        <img referrerPolicy="origin"
-          src={images[currentIndex].src}
-          alt={images[currentIndex].alt}
+      {/* Image container */}
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+        <img
+          ref={imageRef}
+          referrerPolicy="origin"
+          src={currentImage.src}
+          alt={currentImage.alt}
           onDoubleClick={handleDoubleClick}
           style={{
-            transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
-            transition: isTransitioning ? "none" : "transform 0.2s ease-out",
+            transform: `translate3d(${x}px, ${y}px, 0) scale3d(${scale}, ${scale}, 1)`,
+            transition: isAnimating ? "transform 0.25s cubic-bezier(0.2, 0, 0.2, 1)" : "none",
+            willChange: isZoomed ? "transform" : "auto",
+            backfaceVisibility: "hidden",
           }}
-          className="max-w-full max-h-full object-contain"
+          className="max-w-full max-h-full object-contain pointer-events-none"
           draggable={false}
         />
       </div>
 
-      {/* Navigation arrows */}
-      {currentIndex > 0 && (
+      {/* Navigation arrows - hidden when zoomed */}
+      {!isZoomed && currentIndex > 0 && (
         <button
           onClick={goToPrev}
           className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
@@ -191,7 +213,7 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
           </svg>
         </button>
       )}
-      {currentIndex < images.length - 1 && (
+      {!isZoomed && currentIndex < images.length - 1 && (
         <button
           onClick={goToNext}
           className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
