@@ -1,26 +1,49 @@
 /**
- * Upload an image file via API route and return the public URL.
+ * Upload an image file via presigned URL and return the public URL.
+ *
+ * This bypasses Vercel's 4.5MB serverless function body limit by having the
+ * client upload the file directly to Supabase Storage.
  */
 export async function uploadImage(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const res = await fetch("/api/upload", {
+  // Step 1: Request a presigned upload URL from our API (small JSON, no file data)
+  const presignRes = await fetch("/api/upload/presign", {
     method: "POST",
-    body: formData,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+    }),
   });
 
-  if (!res.ok) {
+  if (!presignRes.ok) {
     let msg = "アップロードに失敗しました";
     try {
-      const data = await res.json();
+      const data = await presignRes.json();
       msg = data.error || msg;
     } catch {}
     throw new Error(msg);
   }
 
-  const data = await res.json();
-  return data.url;
+  const { signedUrl, publicUrl } = await presignRes.json();
+
+  // Step 2: Upload the file directly to Supabase Storage via the presigned URL
+  const uploadRes = await fetch(signedUrl, {
+    method: "PUT",
+    body: file,
+    headers: { "Content-Type": file.type },
+  });
+
+  if (!uploadRes.ok) {
+    let msg = "アップロードに失敗しました";
+    try {
+      const data = await uploadRes.json();
+      msg = data.error || msg;
+    } catch {}
+    throw new Error(msg);
+  }
+
+  return publicUrl;
 }
 
 /**

@@ -14,6 +14,12 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  // Cache API only supports GET requests.
+  // Skip POST, DELETE and other methods to avoid TypeError on cache.put().
+  if (event.request.method !== "GET") {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
