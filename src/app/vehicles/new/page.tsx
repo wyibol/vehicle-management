@@ -9,11 +9,14 @@ export default function NewVehiclePage() {
   const router = useRouter();
   const [plateNumber, setPlateNumber] = useState("");
   const [carModel, setCarModel] = useState("");
+  const [memo, setMemo] = useState("");
   const [photos, setPhotos] = useState<Record<string, File | string | null>>({
     front: null,
     rear: null,
     left: null,
     right: null,
+    extra1: null,
+    extra2: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,10 +39,10 @@ export default function NewVehiclePage() {
       return;
     }
 
-    const photoPositions = ["front", "rear", "left", "right"];
-    const missingPhotos = photoPositions.filter((p) => !photos[p]);
-    if (missingPhotos.length > 0) {
-      setError("全ての写真（前・後・左・右）をアップロードしてください");
+    const photoPositions = ["front", "rear", "left", "right", "extra1", "extra2"];
+    const uploadedCount = photoPositions.filter((p) => photos[p]).length;
+    if (uploadedCount === 0) {
+      setError("少なくとも1枚の写真をアップロードしてください");
       return;
     }
 
@@ -67,6 +70,9 @@ export default function NewVehiclePage() {
           rear_image: uploadedUrls.rear,
           left_image: uploadedUrls.left,
           right_image: uploadedUrls.right,
+          extra1_image: uploadedUrls.extra1,
+          extra2_image: uploadedUrls.extra2,
+          memo: memo.trim(),
         }),
       });
 
@@ -133,6 +139,19 @@ export default function NewVehiclePage() {
             <p className="text-red-600 text-sm">{error}</p>
           </div>
         )}
+
+        <div className="bg-white rounded-xl shadow-sm border p-6">
+          <h2 className="text-sm font-medium text-gray-700 mb-2">メモ</h2>
+          <textarea
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+            placeholder="車両に関するメモを入力（300文字以内）"
+            maxLength={300}
+            rows={4}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+          />
+          <p className="text-xs text-gray-400 mt-1 text-right">{memo.length}/300</p>
+        </div>
 
         <div className="flex gap-3 justify-end">
           <button

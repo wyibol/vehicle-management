@@ -13,6 +13,9 @@ type Vehicle = {
   rear_image: string;
   left_image: string;
   right_image: string;
+  extra1_image: string;
+  extra2_image: string;
+  memo?: string;
   created_at: string;
   updated_at: string;
 };
@@ -27,9 +30,12 @@ export default function EditVehiclePage({
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [plateNumber, setPlateNumber] = useState("");
   const [carModel, setCarModel] = useState("");
+  const [memo, setMemo] = useState("");
   const [photos, setPhotos] = useState<Record<string, File | string | null>>({
     front: null,
     rear: null,
+    extra1: null,
+    extra2: null,
     left: null,
     right: null,
   });
@@ -49,7 +55,10 @@ export default function EditVehiclePage({
       setVehicle(data);
       setPlateNumber(data.plate_number);
       setCarModel(data.car_model);
+      setMemo(data.memo || "");
       setPhotos({
+        extra1: (data as any).extra1_image || data.extra1_image || null,
+        extra2: (data as any).extra2_image || data.extra2_image || null,
         front: data.front_image,
         rear: data.rear_image,
         left: data.left_image,
@@ -82,16 +91,16 @@ export default function EditVehiclePage({
       return;
     }
 
-    const photoPositions = ["front", "rear", "left", "right"];
-    const missingPhotos = photoPositions.filter((p) => !photos[p]);
-    if (missingPhotos.length > 0) {
-      setError("全ての写真（前・後・左・右）が必要です");
+    const photoPositions = ["front", "rear", "left", "right", "extra1", "extra2"];
+    const uploadedCount = photoPositions.filter((p) => photos[p]).length;
+    if (uploadedCount === 0) {
+      setError("少なくとも1枚の写真をアップロードしてください");
       return;
     }
 
     setIsSubmitting(true);
     const oldImageUrls: string[] = vehicle
-      ? [vehicle.front_image, vehicle.rear_image, vehicle.left_image, vehicle.right_image]
+      ? [vehicle.front_image, vehicle.rear_image, vehicle.left_image, vehicle.right_image, (vehicle as any).extra1_image || "", (vehicle as any).extra2_image || ""]
       : [];
     const newUploadedUrls: Record<string, string> = {};
 
@@ -116,6 +125,9 @@ export default function EditVehiclePage({
           rear_image: newUploadedUrls.rear,
           left_image: newUploadedUrls.left,
           right_image: newUploadedUrls.right,
+          extra1_image: newUploadedUrls.extra1 || null,
+          extra2_image: newUploadedUrls.extra2 || null,
+          memo: memo.trim(),
         }),
       });
 
@@ -157,7 +169,7 @@ export default function EditVehiclePage({
     return (
       <div className="text-center py-16">
         <p className="text-red-500 font-medium">{error}</p>
-        <button onClick={() => router.push("/")} className="mt-4 text-blue-600 hover:underline">
+        <button onClick={() => router.push("/tools/vehicles")} className="mt-4 text-blue-600 hover:underline">
           トップに戻る
         </button>
       </div>
@@ -212,6 +224,19 @@ export default function EditVehiclePage({
             <p className="text-red-600 text-sm">{error}</p>
           </div>
         )}
+
+        <div className="bg-white rounded-xl shadow-sm border p-6">
+          <h2 className="text-sm font-medium text-gray-700 mb-2">メモ</h2>
+          <textarea
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+            placeholder="車両に関するメモを入力（300文字以内）"
+            maxLength={300}
+            rows={4}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+          />
+          <p className="text-xs text-gray-400 mt-1 text-right">{memo.length}/300</p>
+        </div>
 
         <div className="flex gap-3 justify-end">
           <button

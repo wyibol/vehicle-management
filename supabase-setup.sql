@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS vehicles (
   rear_image TEXT NOT NULL,
   left_image TEXT NOT NULL,
   right_image TEXT NOT NULL,
+  extra1_image TEXT,
+  extra2_image TEXT,
+  memo TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -27,6 +30,12 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+
+-- 追加カラム（既存のDB用）
+ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS extra1_image TEXT;
+ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS extra2_image TEXT;
+ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS memo TEXT;
 
 CREATE TRIGGER trigger_vehicles_updated_at
   BEFORE UPDATE ON vehicles

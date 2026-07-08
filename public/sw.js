@@ -1,4 +1,4 @@
-const CACHE_NAME = "vehicle-management-v4";
+const CACHE_NAME = "vehicle-management-v5";
 const PRECACHE_URLS = [
   "/",
   "/vehicles/new",
@@ -29,32 +29,27 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Skip cross-origin requests (OSS images, third-party resources)
-  // These should go directly to the network without SW intervention
   if (isCrossOrigin(event.request.url)) {
     return;
   }
 
-  // For same-origin navigation requests, use cache-first strategy
-  // For other same-origin requests, use network-first
+  // Network-first strategy: always try server first, fall back to cache
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response;
-      }
-      return fetch(event.request).then((response) => {
-        // Only cache successful HTML page navigations
-        if (!response || response.status !== 200) {
-          return response;
-        }
-        if (response.headers.get("content-type")?.includes("text/html")) {
+    fetch(event.request)
+      .then((response) => {
+        // Cache successful responses
+        if (response && response.status === 200) {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });
         }
         return response;
-      });
-    })
+      })
+      .catch(() => {
+        // If network fails (offline), try cache
+        return caches.match(event.request);
+      })
   );
 });
 

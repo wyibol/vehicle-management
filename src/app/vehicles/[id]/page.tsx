@@ -20,6 +20,8 @@ const POSITIONS = [
   { key: "rear", label: "後面" },
   { key: "left", label: "左側" },
   { key: "right", label: "右側" },
+  { key: "extra1", label: "追加" },
+  { key: "extra2", label: "追加" },
 ] as const;
 
 function formatDate(dateStr: string): string {
@@ -79,7 +81,7 @@ export default function VehicleDetailPage({
         alert("削除に失敗しました");
         return;
       }
-      router.push("/");
+      router.push("/tools/vehicles");
     } catch {
       alert("削除に失敗しました");
     } finally {
@@ -106,7 +108,7 @@ export default function VehicleDetailPage({
       <div className="text-center py-16">
         <p className="text-red-500 font-medium">{error || "エラーが発生しました"}</p>
         <button
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/tools/vehicles")}
           className="mt-4 text-blue-600 hover:underline"
         >
           トップに戻る
@@ -190,6 +192,13 @@ export default function VehicleDetailPage({
           );
         })}
       </div>
+
+      {vehicle?.memo && (
+        <div className="bg-white rounded-xl shadow-sm border p-6 mt-4">
+          <h2 className="text-sm font-medium text-gray-700 mb-2">メモ</h2>
+          <p className="text-sm text-gray-600 whitespace-pre-wrap">{vehicle.memo}</p>
+        </div>
+      )}
 
       {viewerOpen && (
         <ImageViewer

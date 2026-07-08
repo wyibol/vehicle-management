@@ -42,7 +42,7 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { plate_number, car_model, front_image, rear_image, left_image, right_image } = body;
+    const { plate_number, car_model, front_image, rear_image, left_image, right_image, extra1_image, extra2_image, memo } = body;
 
     if (!plate_number) {
       return NextResponse.json(
@@ -61,6 +61,9 @@ export async function PUT(
     if (rear_image) updateData.rear_image = rear_image;
     if (left_image) updateData.left_image = left_image;
     if (right_image) updateData.right_image = right_image;
+    if (extra1_image) updateData.extra1_image = extra1_image;
+    if (extra2_image) updateData.extra2_image = extra2_image;
+    if (memo !== undefined) updateData.memo = memo;
 
     const { data, error } = await supabaseAdmin
       .from("vehicles")
@@ -124,6 +127,8 @@ export async function DELETE(
       vehicle.rear_image,
       vehicle.left_image,
       vehicle.right_image,
+      (vehicle as any).extra1_image,
+      (vehicle as any).extra2_image,
     ].filter((p): p is string => p !== null);
 
     if (imageUrls.length > 0) {

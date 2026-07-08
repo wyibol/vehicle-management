@@ -8,6 +8,8 @@ const POSITIONS = [
   { key: "rear", label: "後" },
   { key: "left", label: "左" },
   { key: "right", label: "右" },
+  { key: "extra1", label: "追加" },
+  { key: "extra2", label: "追加" },
 ] as const;
 
 type PhotoMap = Record<string, File | string | null>;

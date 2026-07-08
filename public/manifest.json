@@ -1,6 +1,6 @@
 {
-  "name": "車両管理",
-  "short_name": "車両管理",
+  "name": "美ら島車両管理",
+  "short_name": "美ら島車両管理",
   "description": "車両情報管理アプリケーション",
   "start_url": "/",
   "display": "standalone",

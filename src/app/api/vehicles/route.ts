@@ -5,9 +5,9 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { plate_number, car_model, front_image, rear_image, left_image, right_image } = body;
+    const { plate_number, car_model, front_image, rear_image, left_image, right_image, extra1_image, extra2_image, memo } = body;
 
-    if (!plate_number || !car_model || !front_image || !rear_image || !left_image || !right_image) {
+    if (!plate_number || !car_model) {
       return NextResponse.json(
         { error: "全ての必須フィールドを入力してください" },
         { status: 400 }
@@ -19,10 +19,13 @@ export async function POST(request: NextRequest) {
       .insert({
         plate_number,
         car_model,
-        front_image,
-        rear_image,
-        left_image,
-        right_image,
+        front_image: front_image || "",
+        rear_image: rear_image || "",
+        left_image: left_image || "",
+        right_image: right_image || "",
+        extra1_image: extra1_image || null,
+        extra2_image: extra2_image || null,
+        memo: memo || null,
       })
       .select()
       .single();
