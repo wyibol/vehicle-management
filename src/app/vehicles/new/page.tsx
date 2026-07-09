@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PhotoUpload from "@/components/PhotoUpload";
+import { convertToWebP } from "@/lib/images";
 import { uploadImage, deleteImageByUrl } from "@/lib/upload";
 
 export default function NewVehiclePage() {
@@ -56,7 +57,9 @@ export default function NewVehiclePage() {
       for (const position of photoPositions) {
         const file = photos[position];
         if (file instanceof File) {
-          const url = await uploadImage(file);
+          const webpBlob = await convertToWebP(file);
+          const webpFile = new File([webpBlob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
+          const url = await uploadImage(webpFile);
           uploadedUrls[position] = url;
         }
       }

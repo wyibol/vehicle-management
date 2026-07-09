@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PhotoUpload from "@/components/PhotoUpload";
+import { convertToWebP } from "@/lib/images";
 import { uploadImage, deleteImageByUrl } from "@/lib/upload";
 import { SkeletonDetail } from "@/components/Skeleton";
 
@@ -115,7 +116,9 @@ export default function EditVehiclePage({
       for (const position of photoPositions) {
         const file = photos[position];
         if (file instanceof File) {
-          const url = await uploadImage(file);
+          const webpBlob = await convertToWebP(file);
+          const webpFile = new File([webpBlob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
+          const url = await uploadImage(webpFile);
           newUploadedUrls[position] = url;
         } else if (typeof file === "string" && file.length > 0) {
           newUploadedUrls[position] = file;

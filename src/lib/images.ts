@@ -37,6 +37,8 @@ export function getViewerImageUrl(
   try {
     const parsed = new URL(url);
     if (parsed.hostname.includes("aliyuncs.com")) {
+      // Already a static WebP — no OSS processing needed
+      if (parsed.pathname.endsWith(".webp")) return url;
       const parts = [`image/format,webp/quality,Q_${quality}`];
       if (maxWidth > 0) parts.push(`image/resize,w_${maxWidth}`);
       parsed.searchParams.set("x-oss-process", parts.join("/"));
@@ -46,8 +48,49 @@ export function getViewerImageUrl(
   return url;
 }
 
+
+/**
+ * Convert an image to WebP on the client side before upload.
+ *
+ * This runs in the browser using Canvas, so the file stored on OSS is already
+ * a static WebP — zero OSS server-side processing at view time. Quality 95
+ * is visually lossless while cutting file size ~50%.
+ */
+export function convertToWebP(file: File | Blob): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(objectUrl);
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            // Fallback: browser doesn't support WebP encoding
+            resolve(file instanceof Blob ? file : new Blob([file]));
+          }
+        },
+        "image/webp",
+        0.95
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Failed to load image for WebP conversion"));
+    };
+    img.src = objectUrl;
+  });
+}
+
 /**
  * Resize an image on the client side before upload.
+
  *
  * Uses a canvas to downscale the image to at most maxWidth x maxHeight while
  * maintaining aspect ratio. This drastically reduces file size and improves
