@@ -1,9 +1,11 @@
 "use client";
 
+import { getOptimizedImageUrl } from "@/lib/images";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageViewer from "@/components/ImageViewer";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { SkeletonDetail } from "@/components/Skeleton";
 
 type Vehicle = {
   id: string;
@@ -97,9 +99,7 @@ export default function VehicleDetailPage({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-gray-400">読み込み中...</div>
-      </div>
+      <SkeletonDetail />
     );
   }
 
@@ -117,7 +117,7 @@ export default function VehicleDetailPage({
     );
   }
 
-  // 🌟 核心修复1：同时检测 key 和 key_image 两种情况
+  // Thumbnails: raw URLs (optimized in JSX via getOptimizedImageUrl)
   const allImages = POSITIONS.map((p) => {
     const imgUrl = vehicle[p.key] || vehicle[`${p.key}_image`];
     return {
@@ -125,6 +125,13 @@ export default function VehicleDetailPage({
       alt: p.label,
     };
   }).filter((img) => img.src);
+
+  // Viewer: OSS-optimized 2560px for fast loading with good detail
+  const viewerImages = allImages.map((img) => ({
+    src: getOptimizedImageUrl(img.src, 2560),
+    thumbnail: getOptimizedImageUrl(img.src, 400),
+    alt: img.alt,
+  }));
 
   return (
     <div>
@@ -170,7 +177,7 @@ export default function VehicleDetailPage({
               <div className="aspect-[4/3] relative">
                 {imageUrl ? (
                   <img referrerPolicy="origin"
-                    src={imageUrl}
+                    src={getOptimizedImageUrl(imageUrl, 400)}
                     alt={label}
                     className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
                   />
@@ -202,7 +209,7 @@ export default function VehicleDetailPage({
 
       {viewerOpen && (
         <ImageViewer
-          images={allImages}
+          images={viewerImages}
           initialIndex={viewerIndex}
           onClose={() => setViewerOpen(false)}
         />

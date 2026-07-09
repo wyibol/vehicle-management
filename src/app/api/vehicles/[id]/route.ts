@@ -26,7 +26,9 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: { "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30" },
+    });
   } catch (error) {
     return NextResponse.json(
       { error: "リクエストの処理に失敗しました" },
@@ -42,7 +44,7 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { plate_number, car_model, front_image, rear_image, left_image, right_image, extra1_image, extra2_image, memo } = body;
+    const { plate_number, car_model, front_image, rear_image, left_image, right_image, extra1_image, extra2_image, extra3_image, extra4_image, memo } = body;
 
     if (!plate_number) {
       return NextResponse.json(
@@ -56,13 +58,15 @@ export async function PUT(
       updated_at: new Date().toISOString(),
     };
 
-    if (car_model) updateData.car_model = car_model;
-    if (front_image) updateData.front_image = front_image;
-    if (rear_image) updateData.rear_image = rear_image;
-    if (left_image) updateData.left_image = left_image;
-    if (right_image) updateData.right_image = right_image;
-    if (extra1_image) updateData.extra1_image = extra1_image;
-    if (extra2_image) updateData.extra2_image = extra2_image;
+    if (car_model !== undefined) updateData.car_model = car_model;
+    if (front_image !== undefined) updateData.front_image = front_image;
+    if (rear_image !== undefined) updateData.rear_image = rear_image;
+    if (left_image !== undefined) updateData.left_image = left_image;
+    if (right_image !== undefined) updateData.right_image = right_image;
+    if (extra1_image !== undefined) updateData.extra1_image = extra1_image;
+    if (extra2_image !== undefined) updateData.extra2_image = extra2_image;
+    if (extra3_image !== undefined) updateData.extra3_image = extra3_image;
+    if (extra4_image !== undefined) updateData.extra4_image = extra4_image;
     if (memo !== undefined) updateData.memo = memo;
 
     const { data, error } = await supabaseAdmin
@@ -79,7 +83,9 @@ export async function PUT(
       );
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: { "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30" },
+    });
   } catch (error) {
     return NextResponse.json(
       { error: "リクエストの処理に失敗しました" },

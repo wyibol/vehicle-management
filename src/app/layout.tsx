@@ -12,7 +12,11 @@ export default function RootLayout({
 }) {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js?v=4");
+      try {
+        navigator.serviceWorker.register("/sw.js?v=4");
+      } catch (e) {
+        // Service worker registration is optional
+      }
     }
   }, []);
 
@@ -33,13 +37,17 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm border-b">
-          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2">
-            <a href="/" className="text-xl font-bold text-blue-600 hover:text-blue-700">
-              美ら島車両管理
+          <div className="max-w-4xl mx-auto px-4 py-2 flex items-center gap-2">
+            <a href="/" className="flex items-center">
+              <img
+                src="/logo.png"
+                alt="美ら島車両管理"
+                className="h-14 w-auto rounded-xl object-contain"
+              />
             </a>
           </div>
         </header>
-        <main className="max-w-4xl mx-auto px-4 py-6 pb-20">
+        <main className="max-w-4xl mx-auto px-4 py-6 pb-20 page-fade-in">
           {children}
         </main>
         <BottomNav />

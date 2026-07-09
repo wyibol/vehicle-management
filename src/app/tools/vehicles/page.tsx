@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import { SkeletonCard } from "@/components/Skeleton";
 
 interface Vehicle {
   id: string;
@@ -42,8 +43,10 @@ export default function RegisteredVehiclesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center text-gray-400 text-sm">
-        読み込み中...
+      <div className="space-y-3">
+        {[...Array(3)].map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
       </div>
     );
   }

@@ -39,7 +39,7 @@ export default function NewVehiclePage() {
       return;
     }
 
-    const photoPositions = ["front", "rear", "left", "right", "extra1", "extra2"];
+    const photoPositions = ["front", "rear", "left", "right", "extra1", "extra2", "extra3", "extra4"];
     const uploadedCount = photoPositions.filter((p) => photos[p]).length;
     if (uploadedCount === 0) {
       setError("少なくとも1枚の写真をアップロードしてください");

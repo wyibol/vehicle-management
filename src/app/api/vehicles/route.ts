@@ -5,7 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { plate_number, car_model, front_image, rear_image, left_image, right_image, extra1_image, extra2_image, memo } = body;
+    const { plate_number, car_model, front_image, rear_image, left_image, right_image, extra1_image, extra2_image, extra3_image, extra4_image, memo } = body;
 
     if (!plate_number || !car_model) {
       return NextResponse.json(
@@ -77,7 +77,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: { "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30" },
+    });
   } catch (error) {
     return NextResponse.json(
       { error: "リクエストの処理に失敗しました" },

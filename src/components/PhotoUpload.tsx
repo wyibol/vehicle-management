@@ -10,6 +10,8 @@ const POSITIONS = [
   { key: "right", label: "右" },
   { key: "extra1", label: "追加" },
   { key: "extra2", label: "追加" },
+  { key: "extra3", label: "追加" },
+  { key: "extra4", label: "追加" },
 ] as const;
 
 type PhotoMap = Record<string, File | string | null>;

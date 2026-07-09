@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PhotoUpload from "@/components/PhotoUpload";
 import { uploadImage, deleteImageByUrl } from "@/lib/upload";
+import { SkeletonDetail } from "@/components/Skeleton";
 
 type Vehicle = {
   id: string;
@@ -57,12 +58,12 @@ export default function EditVehiclePage({
       setCarModel(data.car_model);
       setMemo(data.memo || "");
       setPhotos({
+        front: data.front_image || null,
+        rear: data.rear_image || null,
+        left: data.left_image || null,
+        right: data.right_image || null,
         extra1: (data as any).extra1_image || data.extra1_image || null,
         extra2: (data as any).extra2_image || data.extra2_image || null,
-        front: data.front_image,
-        rear: data.rear_image,
-        left: data.left_image,
-        right: data.right_image,
       });
     } catch {
       setError("ネットワークエラーが発生しました");
@@ -91,7 +92,7 @@ export default function EditVehiclePage({
       return;
     }
 
-    const photoPositions = ["front", "rear", "left", "right", "extra1", "extra2"];
+    const photoPositions = ["front", "rear", "left", "right", "extra1", "extra2", "extra3", "extra4"];
     const uploadedCount = photoPositions.filter((p) => photos[p]).length;
     if (uploadedCount === 0) {
       setError("少なくとも1枚の写真をアップロードしてください");
@@ -110,8 +111,11 @@ export default function EditVehiclePage({
         if (file instanceof File) {
           const url = await uploadImage(file);
           newUploadedUrls[position] = url;
-        } else if (typeof file === "string") {
+        } else if (typeof file === "string" && file.length > 0) {
           newUploadedUrls[position] = file;
+        } else {
+          // Deleted or empty photo — still send empty string to satisfy NOT NULL
+          newUploadedUrls[position] = "";
         }
       }
 
@@ -159,9 +163,7 @@ export default function EditVehiclePage({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-gray-400">読み込み中...</div>
-      </div>
+      <SkeletonDetail />
     );
   }
 
