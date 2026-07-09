@@ -30,16 +30,16 @@ export function getOptimizedImageUrl(
  */
 export function getViewerImageUrl(
   url: string | undefined | null,
-  quality = 92
+  quality = 95,
+  maxWidth = 0
 ): string {
   if (!url) return "";
   try {
     const parsed = new URL(url);
     if (parsed.hostname.includes("aliyuncs.com")) {
-      parsed.searchParams.set(
-        "x-oss-process",
-        `image/format,webp/quality,Q_${quality}/interlace,1`
-      );
+      const parts = [`image/format,webp/quality,Q_${quality}`];
+      if (maxWidth > 0) parts.push(`image/resize,w_${maxWidth}`);
+      parsed.searchParams.set("x-oss-process", parts.join("/"));
       return parsed.toString();
     }
   } catch {}

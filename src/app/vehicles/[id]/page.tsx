@@ -130,7 +130,7 @@ export default function VehicleDetailPage({
 
   // Viewer: OSS-optimized 2560px for fast loading with good detail
   const viewerImages = allImages.map((img) => ({
-    src: getViewerImageUrl(img.src),
+    src: getViewerImageUrl(img.src, 95),
     thumbnail: getOptimizedImageUrl(img.src, 400),
     alt: img.alt,
   }));
