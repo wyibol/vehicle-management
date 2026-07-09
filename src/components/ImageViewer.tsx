@@ -35,17 +35,9 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
 
   const currentImage = images[currentIndex];
 
-  // Compute device-appropriate image size for the viewer
+  // Use original resolution with WebP conversion (no resize, no quality loss)
   const viewerSrc = useMemo(() => {
-    if (typeof window === "undefined") return currentImage.src;
-    const vw = window.innerWidth;
-    const dpr = window.devicePixelRatio || 1;
-    // Enough pixels for 2x pinch-zoom on any device
-    const needed = Math.round(vw * dpr * 2);
-    // Mobile: cap at 1500px for fast loading; Desktop: cap at 3200px
-    const maxW = vw < 768 ? 1500 : 3200;
-    const w = Math.min(needed, maxW);
-    return getViewerImageUrl(currentImage.src, 95, w);
+    return getViewerImageUrl(currentImage.src, 95);
   }, [currentImage.src]);
 
   const markLoaded = useCallback((idx: number) => {

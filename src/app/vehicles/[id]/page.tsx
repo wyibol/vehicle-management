@@ -1,7 +1,7 @@
 "use client";
 
 import { getOptimizedImageUrl, getViewerImageUrl } from "@/lib/images";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageViewer from "@/components/ImageViewer";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -94,6 +94,14 @@ export default function VehicleDetailPage({
     }
   };
 
+  const preloadRef = useRef<Set<string>>(new Set());
+  const preloadImage = useCallback((url: string) => {
+    if (!url || preloadRef.current.has(url)) return;
+    preloadRef.current.add(url);
+    const img = new window.Image();
+    img.src = url;
+  }, []);
+
   const openViewer = (index: number) => {
     setViewerIndex(index);
     setViewerOpen(true);
@@ -168,6 +176,8 @@ export default function VehicleDetailPage({
           <div
             key={img.alt}
             onClick={() => openViewer(idx)}
+            onMouseEnter={() => preloadImage(viewerImages[idx].src)}
+            onTouchStart={() => preloadImage(viewerImages[idx].src)}
             className="bg-white rounded-xl shadow-sm border overflow-hidden cursor-pointer hover:shadow-md transition-shadow group"
           >
             <div className="aspect-[4/3] relative">
