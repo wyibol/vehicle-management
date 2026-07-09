@@ -17,6 +17,8 @@ export default function NewVehiclePage() {
     right: null,
     extra1: null,
     extra2: null,
+    extra3: null,
+    extra4: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +74,8 @@ export default function NewVehiclePage() {
           right_image: uploadedUrls.right,
           extra1_image: uploadedUrls.extra1,
           extra2_image: uploadedUrls.extra2,
+          extra3_image: uploadedUrls.extra3,
+          extra4_image: uploadedUrls.extra4,
           memo: memo.trim(),
         }),
       });

@@ -24,6 +24,8 @@ const POSITIONS = [
   { key: "right", label: "右側" },
   { key: "extra1", label: "追加" },
   { key: "extra2", label: "追加" },
+  { key: "extra3", label: "追加" },
+  { key: "extra4", label: "追加" },
 ] as const;
 
 function formatDate(dateStr: string): string {

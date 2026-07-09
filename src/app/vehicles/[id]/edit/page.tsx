@@ -16,6 +16,8 @@ type Vehicle = {
   right_image: string;
   extra1_image: string;
   extra2_image: string;
+  extra3_image: string;
+  extra4_image: string;
   memo?: string;
   created_at: string;
   updated_at: string;
@@ -37,6 +39,8 @@ export default function EditVehiclePage({
     rear: null,
     extra1: null,
     extra2: null,
+    extra3: null,
+    extra4: null,
     left: null,
     right: null,
   });
@@ -64,6 +68,8 @@ export default function EditVehiclePage({
         right: data.right_image || null,
         extra1: (data as any).extra1_image || data.extra1_image || null,
         extra2: (data as any).extra2_image || data.extra2_image || null,
+        extra3: (data as any).extra3_image || data.extra3_image || null,
+        extra4: (data as any).extra4_image || data.extra4_image || null,
       });
     } catch {
       setError("ネットワークエラーが発生しました");
@@ -101,7 +107,7 @@ export default function EditVehiclePage({
 
     setIsSubmitting(true);
     const oldImageUrls: string[] = vehicle
-      ? [vehicle.front_image, vehicle.rear_image, vehicle.left_image, vehicle.right_image, (vehicle as any).extra1_image || "", (vehicle as any).extra2_image || ""]
+      ? [vehicle.front_image, vehicle.rear_image, vehicle.left_image, vehicle.right_image, (vehicle as any).extra1_image || "", (vehicle as any).extra2_image || "", (vehicle as any).extra3_image || "", (vehicle as any).extra4_image || ""]
       : [];
     const newUploadedUrls: Record<string, string> = {};
 
@@ -131,6 +137,8 @@ export default function EditVehiclePage({
           right_image: newUploadedUrls.right,
           extra1_image: newUploadedUrls.extra1 || null,
           extra2_image: newUploadedUrls.extra2 || null,
+          extra3_image: newUploadedUrls.extra3 || null,
+          extra4_image: newUploadedUrls.extra4 || null,
           memo: memo.trim(),
         }),
       });
