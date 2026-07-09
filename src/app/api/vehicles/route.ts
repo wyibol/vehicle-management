@@ -25,6 +25,8 @@ export async function POST(request: NextRequest) {
         right_image: right_image || "",
         extra1_image: extra1_image || null,
         extra2_image: extra2_image || null,
+        extra3_image: extra3_image || null,
+        extra4_image: extra4_image || null,
         memo: memo || null,
       })
       .select()

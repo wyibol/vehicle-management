@@ -149,7 +149,7 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
       t.swipeY = touches[0].clientY;
       setZoomState(prev => ({ ...prev, x: prev.x + deltaX, y: prev.y + deltaY }));
     }
-  }, [zoomState.scale, zoomState.x, zoomState.y]);
+  }, [zoomState.scale]);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     const t = touch.current;

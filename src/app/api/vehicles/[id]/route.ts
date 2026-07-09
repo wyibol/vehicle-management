@@ -127,7 +127,7 @@ export async function DELETE(
       );
     }
 
-    // Try to delete associated images (best effort)
+    // Try to delete associated images from OSS (best effort)
     const imageUrls = [
       vehicle.front_image,
       vehicle.rear_image,
@@ -135,17 +135,18 @@ export async function DELETE(
       vehicle.right_image,
       (vehicle as any).extra1_image,
       (vehicle as any).extra2_image,
+      (vehicle as any).extra3_image,
+      (vehicle as any).extra4_image,
     ].filter((p): p is string => p !== null);
 
     if (imageUrls.length > 0) {
-      const bucket = process.env.NEXT_PUBLIC_STORAGE_BUCKET || "vehicle-images";
-      const paths = imageUrls.map((url: string) => {
-        const parts = url.split(`/public/${bucket}/`);
-        return parts.length >= 2 ? parts[1] : null;
-      }).filter((p): p is string => p !== null);
-
-      if (paths.length > 0) {
-        await supabaseAdmin.storage.from(bucket).remove(paths);
+      const { getOssObjectKey, getOssClient } = await import("@/lib/oss");
+      const client = getOssClient();
+      for (const url of imageUrls) {
+        const key = getOssObjectKey(url);
+        if (key) {
+          await client.delete(key).catch(() => {});
+        }
       }
     }
 
