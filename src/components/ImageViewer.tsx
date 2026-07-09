@@ -72,6 +72,8 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
       preloadedRef.current.add(i);
       const img = new window.Image();
       img.onload = () => markLoaded(i);
+      // Use fetchpriority="low" to avoid stealing bandwidth from the current image
+      img.fetchPriority = "low";
       img.src = images[i].src;
     });
   }, [currentIndex, images, markLoaded]);
@@ -232,6 +234,7 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
         <img
           referrerPolicy="origin"
           src={viewerSrc}
+          fetchPriority="high"
           alt={currentImage.alt}
           onLoad={() => markLoaded(currentIndex)}
           onDoubleClick={handleDoubleClick}
