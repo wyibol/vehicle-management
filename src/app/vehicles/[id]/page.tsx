@@ -55,7 +55,7 @@ export default function VehicleDetailPage({
 
   const fetchVehicle = useCallback(async () => {
     try {
-      const res = await fetch(`/api/vehicles/${id}`);
+      const res = await fetch(`/api/vehicles/${id}`, { cache: 'no-store' });
       if (!res.ok) {
         if (res.status === 404) {
           setError("車両が見つかりません");
