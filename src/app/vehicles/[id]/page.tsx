@@ -162,42 +162,29 @@ export default function VehicleDetailPage({
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {POSITIONS.map(({ key, label }, index) => {
-          // 🌟 核心修复2：自动适配数据库的字段名
-          const imageUrl = (vehicle[key] || vehicle[`${key}_image`]) as string;
-          
-          return (
-            <div
-              key={key}
-              onClick={() => {
-                if (imageUrl) openViewer(index);
-              }}
-              className="bg-white rounded-xl shadow-sm border overflow-hidden cursor-pointer hover:shadow-md transition-shadow group"
-            >
-              <div className="aspect-[4/3] relative">
-                {imageUrl ? (
-                  <img referrerPolicy="origin"
-                    src={getOptimizedImageUrl(imageUrl, 400)}
-                    alt={label}
-                    className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
-                    画像なし (無圖片)
-                  </div>
-                )}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                  <span className="text-white text-sm font-medium bg-black/50 px-3 py-1 rounded-full">
-                    拡大表示
-                  </span>
-                </div>
-              </div>
-              <div className="p-2 text-center text-sm font-medium text-gray-600">
-                {label}
+        {allImages.map((img, idx) => (
+          <div
+            key={img.alt}
+            onClick={() => openViewer(idx)}
+            className="bg-white rounded-xl shadow-sm border overflow-hidden cursor-pointer hover:shadow-md transition-shadow group"
+          >
+            <div className="aspect-[4/3] relative">
+              <img referrerPolicy="origin"
+                src={getOptimizedImageUrl(img.src, 400)}
+                alt={img.alt}
+                className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+                <span className="text-white text-sm font-medium bg-black/50 px-3 py-1 rounded-full">
+                  拡大表示
+                </span>
               </div>
             </div>
-          );
-        })}
+            <div className="p-2 text-center text-sm font-medium text-gray-600">
+              {img.alt}
+            </div>
+          </div>
+        ))}
       </div>
 
       {vehicle?.memo && (
