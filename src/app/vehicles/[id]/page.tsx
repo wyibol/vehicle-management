@@ -1,6 +1,6 @@
 "use client";
 
-import { getOptimizedImageUrl } from "@/lib/images";
+import { getOptimizedImageUrl, getViewerImageUrl } from "@/lib/images";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageViewer from "@/components/ImageViewer";
@@ -128,7 +128,7 @@ export default function VehicleDetailPage({
 
   // Viewer: OSS-optimized 2560px for fast loading with good detail
   const viewerImages = allImages.map((img) => ({
-    src: img.src,
+    src: getViewerImageUrl(img.src),
     thumbnail: getOptimizedImageUrl(img.src, 400),
     alt: img.alt,
   }));

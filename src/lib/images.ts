@@ -1,5 +1,5 @@
 /**
- * Generate an optimized image URL for Alibaba Cloud OSS with server-side
+ * Generate an optimized thumbnail URL for Alibaba Cloud OSS with server-side
  * image processing (resize). Append ?x-oss-process=image/resize,w_N.
  *
  * OSS image processing is built into every bucket -- no paid add-on needed.
@@ -15,6 +15,31 @@ export function getOptimizedImageUrl(
     if (parsed.hostname.includes("aliyuncs.com")) {
       const params = `image/resize,w_${width}/quality,Q_${quality}`;
       parsed.searchParams.set("x-oss-process", params);
+      return parsed.toString();
+    }
+  } catch {}
+  return url;
+}
+
+/**
+ * Generate a high-quality viewer URL that converts the image to WebP format
+ * on the fly without resizing, preserving original resolution while cutting
+ * file size by 40-60%. Quality 92 is near-lossless.
+ *
+ * Uses OSS server-side processing — no re-upload needed, originals untouched.
+ */
+export function getViewerImageUrl(
+  url: string | undefined | null,
+  quality = 92
+): string {
+  if (!url) return "";
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.includes("aliyuncs.com")) {
+      parsed.searchParams.set(
+        "x-oss-process",
+        `image/format,webp/quality,Q_${quality}/interlace,1`
+      );
       return parsed.toString();
     }
   } catch {}
