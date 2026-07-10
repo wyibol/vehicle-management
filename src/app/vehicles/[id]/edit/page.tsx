@@ -116,9 +116,15 @@ export default function EditVehiclePage({
       for (const position of photoPositions) {
         const file = photos[position];
         if (file instanceof File) {
-          const webpBlob = await convertToWebP(file);
-          const webpFile = new File([webpBlob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
-          const url = await uploadImage(webpFile);
+          let uploadFile: File = file;
+          try {
+            const webpBlob = await convertToWebP(file);
+            uploadFile = new File([webpBlob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
+          } catch {
+            // WebP conversion failed (unsupported browser, memory, etc.)
+            // Fall back to uploading the original file
+          }
+          const url = await uploadImage(uploadFile);
           newUploadedUrls[position] = url;
         } else if (typeof file === "string" && file.length > 0) {
           newUploadedUrls[position] = file;

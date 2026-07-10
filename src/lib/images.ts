@@ -58,33 +58,49 @@ export function getViewerImageUrl(
  */
 export function convertToWebP(file: File | Blob): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    const img = new window.Image();
-    const objectUrl = URL.createObjectURL(file);
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0);
-      URL.revokeObjectURL(objectUrl);
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            // Fallback: browser doesn't support WebP encoding
-            resolve(file instanceof Blob ? file : new Blob([file]));
+    try {
+      const img = new window.Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        try {
+          // Cap canvas to 4096px max dimension for mobile memory safety
+          let w = img.width, h = img.height;
+          const MAX = 4096;
+          if (w > MAX || h > MAX) {
+            if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+            else { w = Math.round(w * MAX / h); h = MAX; }
           }
-        },
-        "image/webp",
-        0.95
-      );
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error("Failed to load image for WebP conversion"));
-    };
-    img.src = objectUrl;
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d")!;
+          ctx.drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(objectUrl);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                // Browser doesn't support WebP encoding — reject so caller can fall back
+                reject(new Error("WebP encoding not supported"));
+              }
+            },
+            "image/webp",
+            0.95
+          );
+        } catch (e) {
+          URL.revokeObjectURL(objectUrl);
+          reject(e);
+        }
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error("Failed to load image for WebP conversion"));
+      };
+      img.src = objectUrl;
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 
