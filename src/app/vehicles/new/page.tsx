@@ -52,14 +52,15 @@ export default function NewVehiclePage() {
     const uploadedUrls: Record<string, string> = {};
 
     try {
-      // Upload all images first
-      for (const position of photoPositions) {
+      // Upload all images in parallel
+      const uploadTasks = photoPositions.map(async (position) => {
         const file = photos[position];
         if (file instanceof File) {
           const url = await uploadImage(file);
           uploadedUrls[position] = url;
         }
-      }
+      });
+      await Promise.all(uploadTasks);
 
       // Create vehicle record
       const res = await fetch("/api/vehicles", {

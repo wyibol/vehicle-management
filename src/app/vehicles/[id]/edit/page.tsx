@@ -150,7 +150,8 @@ export default function EditVehiclePage({
       }
 
       for (const position of photoPositions) {
-        const oldUrl = vehicle?.[position as keyof Vehicle] as string;
+        const imgKey = `${position}_image`;
+        const oldUrl = (vehicle as any)?.[imgKey] || "";
         const newFile = photos[position];
         if (newFile instanceof File && oldUrl && oldUrl !== newUploadedUrls[position]) {
           await deleteImageByUrl(oldUrl).catch(() => {});
