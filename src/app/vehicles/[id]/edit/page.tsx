@@ -112,7 +112,8 @@ export default function EditVehiclePage({
     const newUploadedUrls: Record<string, string> = {};
 
     try {
-      for (const position of photoPositions) {
+      // Upload all new photos in parallel
+      const uploadTasks = photoPositions.map(async (position) => {
         const file = photos[position];
         if (file instanceof File) {
           const url = await uploadImage(file);
@@ -120,10 +121,10 @@ export default function EditVehiclePage({
         } else if (typeof file === "string" && file.length > 0) {
           newUploadedUrls[position] = file;
         } else {
-          // Deleted or empty photo — still send empty string to satisfy NOT NULL
           newUploadedUrls[position] = "";
         }
-      }
+      });
+      await Promise.all(uploadTasks);
 
       const res = await fetch(`/api/vehicles/${id}`, {
         method: "PUT",
