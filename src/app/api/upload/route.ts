@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOssClient, getOssPublicUrl } from "@/lib/oss";
+import sharp from "sharp";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,14 +28,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const fileExt = file.name.split(".").pop() || "jpg";
-    const uniqueName = `${crypto.randomUUID()}.${fileExt}`;
+    // Convert to WebP using sharp (server-side, 100% reliable)
+    const inputBuffer = Buffer.from(await file.arrayBuffer());
+    const webpBuffer = await sharp(inputBuffer)
+      .webp({ quality: 95, effort: 4 })
+      .toBuffer();
+    const uniqueName = `${crypto.randomUUID()}.webp`;
 
-    const buffer = Buffer.from(await file.arrayBuffer());
     const client = getOssClient();
-
-    await client.put(uniqueName, buffer, {
-      mime: file.type,
+    await client.put(uniqueName, webpBuffer, {
+      mime: "image/webp",
       headers: { "Cache-Control": "public, max-age=31536000" },
     });
 
