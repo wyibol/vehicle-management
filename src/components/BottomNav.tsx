@@ -28,7 +28,7 @@ export default function BottomNav() {
           href="/tools"
           aria-label="ツール"
           className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 transition-colors duration-200 ${
-            pathname === "/tools"
+            pathname.startsWith("/tools")
               ? "text-blue-600"
               : "text-gray-400 hover:text-gray-600"
           }`}

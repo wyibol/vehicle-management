@@ -12,11 +12,7 @@ export default function RootLayout({
 }) {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      try {
-        navigator.serviceWorker.register("/sw.js?v=4");
-      } catch (e) {
-        // Service worker registration is optional
-      }
+      navigator.serviceWorker.register("/sw.js?v=4").catch(() => {});
     }
   }, []);
 

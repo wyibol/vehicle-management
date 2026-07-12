@@ -35,10 +35,8 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
 
   const currentImage = images[currentIndex];
 
-  // Use original resolution with WebP conversion (no resize, no quality loss)
-  const viewerSrc = useMemo(() => {
-    return getViewerImageUrl(currentImage.src, 95);
-  }, [currentImage.src]);
+  // Parent already applies OSS processing (WebP conversion), use as-is
+  const viewerSrc = currentImage.src;
 
   const markLoaded = useCallback((idx: number) => {
     setLoadedSet(prev => {

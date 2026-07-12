@@ -149,19 +149,30 @@ export default function EditVehiclePage({
         throw new Error(data.error || "更新に失敗しました");
       }
 
+      // Clean up old OSS files: replaced images and removed images
       for (const position of photoPositions) {
         const imgKey = `${position}_image`;
         const oldUrl = (vehicle as any)?.[imgKey] || "";
         const newFile = photos[position];
-        if (newFile instanceof File && oldUrl && oldUrl !== newUploadedUrls[position]) {
+        const newUrl = newUploadedUrls[position] || "";
+        // Image was replaced (new upload) — delete old
+        if (newFile instanceof File && oldUrl && oldUrl !== newUrl) {
+          await deleteImageByUrl(oldUrl).catch(() => {});
+        }
+        // Image was removed (user clicked ✕) — delete old
+        if (!newFile && oldUrl) {
           await deleteImageByUrl(oldUrl).catch(() => {});
         }
       }
 
       router.push(`/vehicles/${id}`);
     } catch (err) {
+      // On failure, clean up only newly uploaded images, not existing ones
+      const existingUrls = vehicle
+        ? new Set(photoPositions.map(p => (vehicle as any)?.[`${p}_image`] || "").filter(Boolean))
+        : new Set<string>();
       for (const url of Object.values(newUploadedUrls)) {
-        if (url && vehicle && !Object.values(vehicle).includes(url as string & object)) {
+        if (url && !existingUrls.has(url)) {
           await deleteImageByUrl(url).catch(() => {});
         }
       }
