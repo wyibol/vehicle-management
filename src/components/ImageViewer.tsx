@@ -201,14 +201,14 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
     >
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+        className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/40 backdrop-blur border border-hairline-strong/60 rounded-full flex items-center justify-center text-ink-muted hover:text-ink hover:bg-black/60 transition-colors"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-white/80 text-sm bg-black/30 backdrop-blur px-3 py-1 rounded-full">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-xs text-ink-muted bg-black/40 backdrop-blur border border-hairline-strong/60 px-3 py-1 rounded-full">
         {currentIndex + 1} / {images.length}
       </div>
 
@@ -253,16 +253,16 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
 
       {!isZoomed && currentIndex > 0 && (
         <button onClick={(e) => { e.stopPropagation(); goToPrev(); }}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/40 backdrop-blur border border-hairline-strong/60 rounded-full flex items-center justify-center text-ink-muted hover:text-ink hover:bg-black/60 transition-colors">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
       )}
       {!isZoomed && currentIndex < images.length - 1 && (
         <button onClick={(e) => { e.stopPropagation(); goToNext(); }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-black/40 backdrop-blur border border-hairline-strong/60 rounded-full flex items-center justify-center text-ink-muted hover:text-ink hover:bg-black/60 transition-colors">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>

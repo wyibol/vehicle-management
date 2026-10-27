@@ -53,7 +53,7 @@ export default function RegisteredVehiclesPage() {
 
   if (error) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center text-gray-400 text-sm">
+      <div className="min-h-[60vh] flex items-center justify-center text-sm text-ink-subtle">
         {error}
       </div>
     );
@@ -62,26 +62,27 @@ export default function RegisteredVehiclesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-medium text-gray-500">
+        <h2 className="text-[13px] font-medium text-ink-subtle">
           登録件数: {vehicles.length}件
         </h2>
-        <div className="flex rounded-lg bg-gray-100 p-0.5">
+        {/* タブ（pill）: surface-2 ベース、選択中は surface-3 */}
+        <div className="flex rounded-full bg-surface-2 border border-hairline p-0.5">
           <button
             onClick={() => setSortMode("created")}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${
+            className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
               sortMode === "created"
-                ? "bg-white text-gray-800 shadow-sm"
-                : "text-gray-400 hover:text-gray-600"
+                ? "bg-surface-3 text-ink"
+                : "text-ink-tertiary hover:text-ink-muted"
             }`}
           >
             登録日時
           </button>
           <button
             onClick={() => setSortMode("updated")}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${
+            className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
               sortMode === "updated"
-                ? "bg-white text-gray-800 shadow-sm"
-                : "text-gray-400 hover:text-gray-600"
+                ? "bg-surface-3 text-ink"
+                : "text-ink-tertiary hover:text-ink-muted"
             }`}
           >
             更新日時
@@ -90,13 +91,13 @@ export default function RegisteredVehiclesPage() {
       </div>
 
       {vehicles.length === 0 ? (
-        <div className="min-h-[40vh] flex flex-col items-center justify-center text-gray-400">
+        <div className="min-h-[40vh] flex flex-col items-center justify-center text-ink-tertiary">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-4">
             <path d="M5 17h14v-5H5v5zm11.5-10.5l2 4.5H18l-1.5-4.5h-9L6 11H4.5l2-4.5h10z" />
             <circle cx="7" cy="17" r="2" />
             <circle cx="17" cy="17" r="2" />
           </svg>
-          <p className="text-sm">登録された車両はまだありません</p>
+          <p className="text-sm text-ink-subtle">登録された車両はまだありません</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -104,18 +105,18 @@ export default function RegisteredVehiclesPage() {
             <Link
               key={v.id}
               href={`/vehicles/${v.id}`}
-              className="flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-100 hover:border-blue-200 hover:shadow-sm transition-all duration-200"
+              className="flex items-center gap-3 p-4 rounded-xl bg-surface-1 border border-hairline hover:border-hairline-strong hover:bg-surface-2 transition-colors"
             >
-              <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <div className="w-10 h-10 rounded-full bg-surface-2 border border-hairline flex items-center justify-center flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5e6ad2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 17h14v-5H5v5zm11.5-10.5l2 4.5H18l-1.5-4.5h-9L6 11H4.5l2-4.5h10z" />
                   <circle cx="7" cy="17" r="2" />
                   <circle cx="17" cy="17" r="2" />
                 </svg>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-lg font-bold text-gray-800">{v.plate_number}</p>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-[15px] font-medium text-ink tracking-[-0.2px]">{v.plate_number}</p>
+                <p className="text-xs text-ink-tertiary mt-0.5">
                   {sortMode === "created" ? "登録日: " : "最終更新: "}
                   {new Date(v[sortMode === "created" ? "created_at" : "updated_at"]).toLocaleString("ja-JP", {
                     year: "numeric",
@@ -126,7 +127,7 @@ export default function RegisteredVehiclesPage() {
                   })}
                 </p>
               </div>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c7c7cc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#62666d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </Link>

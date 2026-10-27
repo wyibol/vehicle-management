@@ -101,75 +101,75 @@ export default function NewVehiclePage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-xl font-bold text-gray-800 mb-6">新規車両登録</h1>
+      <h1 className="text-[28px] font-semibold tracking-[-0.6px] text-ink mb-6">新規車両登録</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-xl shadow-sm border p-6 space-y-4">
+        <div className="card p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              ナンバー <span className="text-red-500">*</span>
+            <label className="block text-[13px] font-medium text-ink-muted mb-1.5">
+              ナンバー <span className="text-danger">*</span>
             </label>
             <input
               type="text"
               value={plateNumber}
               onChange={(e) => setPlateNumber(e.target.value)}
               placeholder="例：品川300 あ1234"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="field"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              車種 <span className="text-red-500">*</span>
+            <label className="block text-[13px] font-medium text-ink-muted mb-1.5">
+              車種 <span className="text-danger">*</span>
             </label>
             <input
               type="text"
               value={carModel}
               onChange={(e) => setCarModel(e.target.value)}
               placeholder="例：トヨタ クラウン"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="field"
             />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <h2 className="text-sm font-medium text-gray-700 mb-4">
-            写真 <span className="text-red-500">*</span>
+        <div className="card p-6">
+          <h2 className="text-[13px] font-medium text-ink-muted mb-4">
+            写真 <span className="text-danger">*</span>
           </h2>
           <PhotoUpload photos={photos} onChange={handlePhotoChange} />
         </div>
 
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm">{error}</p>
+          <div className="p-4 bg-danger/10 border border-danger/30 rounded-lg">
+            <p className="text-sm text-danger">{error}</p>
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <h2 className="text-sm font-medium text-gray-700 mb-2">メモ</h2>
+        <div className="card p-6">
+          <h2 className="text-[13px] font-medium text-ink-muted mb-2">メモ</h2>
           <textarea
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
             placeholder="車両に関するメモを入力（300文字以内）"
             maxLength={300}
             rows={4}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+            className="field resize-vertical"
           />
-          <p className="text-xs text-gray-400 mt-1 text-right">{memo.length}/300</p>
+          <p className="text-xs text-ink-tertiary mt-1 text-right">{memo.length}/300</p>
         </div>
 
         <div className="flex gap-3 justify-end">
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="btn-secondary"
           >
             キャンセル
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
+            className="btn-primary"
           >
             {isSubmitting ? "保存中..." : "保存"}
           </button>

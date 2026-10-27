@@ -51,17 +51,19 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh]">
       <div className="w-full max-w-xl">
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-8">
-          車両管理システム
-        </h1>
+        <div className="text-center mb-8">
+          <h1 className="text-[32px] md:text-[40px] leading-tight font-semibold tracking-[-1px] text-ink">
+            車両管理システム
+          </h1>
+        </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border">
+        <div className="card p-4 md:p-6">
           <SearchForm onSearch={handleSearch} isSearching={isSearching} />
 
           {notFound && (
-            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-              <p className="text-yellow-800 font-medium">未找到車輛</p>
-              <p className="text-yellow-600 text-sm mt-1">
+            <div className="mt-4 px-4 py-3 rounded-lg bg-surface-2 border border-hairline text-center">
+              <p className="text-sm font-medium text-ink-muted">未找到車輛</p>
+              <p className="text-xs text-ink-subtle mt-1">
                 該当する車両が見つかりませんでした
               </p>
             </div>
@@ -69,19 +71,38 @@ export default function HomePage() {
         </div>
 
         {multipleResults && multipleResults.length > 0 && (
-          <div className="mt-6 bg-white rounded-xl shadow-sm border">
-            <div className="p-4 border-b">
-              <h2 className="font-medium text-gray-700">検索結果（{multipleResults.length}件）</h2>
+          <div className="mt-6 card">
+            <div className="px-4 py-3 border-b border-hairline">
+              <h2 className="text-[13px] font-medium text-ink-muted">
+                検索結果（{multipleResults.length}件）
+              </h2>
             </div>
-            <div className="divide-y">
+            <div className="divide-y divide-hairline">
               {multipleResults.map((vehicle) => (
                 <button
                   key={vehicle.id}
                   onClick={() => router.push(`/vehicles/${vehicle.id}`)}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                  className="w-full text-left px-4 py-3 flex items-center justify-between gap-3 hover:bg-surface-2 transition-colors group"
                 >
-                  <div className="font-medium text-gray-800">{vehicle.plate_number}</div>
-                  <div className="text-sm text-gray-500">{vehicle.car_model}</div>
+                  <div>
+                    <div className="text-[15px] font-medium text-ink tracking-[-0.2px]">
+                      {vehicle.plate_number}
+                    </div>
+                    <div className="text-xs text-ink-subtle mt-0.5">{vehicle.car_model}</div>
+                  </div>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-ink-tertiary group-hover:text-ink-muted transition-colors shrink-0"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
                 </button>
               ))}
             </div>
@@ -91,9 +112,9 @@ export default function HomePage() {
         <div className="mt-8 text-center">
           <button
             onClick={() => router.push("/vehicles/new")}
-            className="inline-flex items-center gap-2 px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+            className="btn-primary"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             新規車両を登録

@@ -116,10 +116,10 @@ export default function VehicleDetailPage({
   if (error || !vehicle) {
     return (
       <div className="text-center py-16">
-        <p className="text-red-500 font-medium">{error || "エラーが発生しました"}</p>
+        <p className="text-sm font-medium text-danger">{error || "エラーが発生しました"}</p>
         <button
           onClick={() => router.push("/tools/vehicles")}
-          className="mt-4 text-blue-600 hover:underline"
+          className="mt-4 text-primary hover:text-primary-hover hover:underline transition-colors"
         >
           トップに戻る
         </button>
@@ -145,25 +145,27 @@ export default function VehicleDetailPage({
 
   return (
     <div>
-      <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{vehicle.plate_number}</h1>
-            <p className="text-gray-600 mt-1">{vehicle.car_model}</p>
-            <p className="text-sm text-gray-400 mt-2">
+      <div className="card p-6 mb-6">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.6px] text-ink">
+              {vehicle.plate_number}
+            </h1>
+            <p className="text-[15px] text-ink-muted mt-1">{vehicle.car_model}</p>
+            <p className="text-xs text-ink-tertiary mt-2">
               最終更新: {formatDate(vehicle.updated_at)}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0">
             <button
               onClick={() => router.push(`/vehicles/${id}/edit`)}
-              className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+              className="btn-secondary"
             >
               編集
             </button>
             <button
               onClick={() => setShowDeleteDialog(true)}
-              className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+              className="btn-danger"
             >
               削除
             </button>
@@ -171,14 +173,14 @@ export default function VehicleDetailPage({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         {allImages.map((img, idx) => (
           <div
             key={img.alt}
             onClick={() => openViewer(idx)}
             onMouseEnter={() => preloadImage(viewerImages[idx].src)}
             onTouchStart={() => preloadImage(viewerImages[idx].src)}
-            className="bg-white rounded-xl shadow-sm border overflow-hidden cursor-pointer hover:shadow-md transition-shadow group"
+            className="bg-surface-1 rounded-xl border border-hairline overflow-hidden cursor-pointer hover:border-hairline-strong transition-colors group"
           >
             <div className="aspect-[4/3] relative">
               <img referrerPolicy="origin"
@@ -187,12 +189,12 @@ export default function VehicleDetailPage({
                 className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                <span className="text-white text-sm font-medium bg-black/50 px-3 py-1 rounded-full">
+                <span className="text-white text-xs font-medium bg-black/50 px-3 py-1 rounded-full">
                   拡大表示
                 </span>
               </div>
             </div>
-            <div className="p-2 text-center text-sm font-medium text-gray-600">
+            <div className="p-2 text-center text-[13px] font-medium text-ink-muted border-t border-hairline bg-surface-1">
               {img.alt}
             </div>
           </div>
@@ -200,9 +202,9 @@ export default function VehicleDetailPage({
       </div>
 
       {vehicle?.memo && (
-        <div className="bg-white rounded-xl shadow-sm border p-6 mt-4">
-          <h2 className="text-sm font-medium text-gray-700 mb-2">メモ</h2>
-          <p className="text-sm text-gray-600 whitespace-pre-wrap">{vehicle.memo}</p>
+        <div className="card p-6 mt-4">
+          <h2 className="text-[13px] font-medium text-ink-muted mb-2">メモ</h2>
+          <p className="text-[15px] text-ink-muted whitespace-pre-wrap">{vehicle.memo}</p>
         </div>
       )}
 

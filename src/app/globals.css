@@ -3,13 +3,76 @@
 @tailwind utilities;
 
 :root {
-  --foreground: #1f2937;
-  --background: #f3f4f6;
+  --foreground: #f7f8f8;
+  --background: #010102;
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(94, 106, 210, 0.35);
+  color: #f7f8f8;
+}
+
+/* スクロールバー（hairline 基調） */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #23252a transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #23252a;
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@layer components {
+  /* Linear デザインシステム（awesome-design-md/linear.app） */
+  /* カード: surface-1 + 1px hairline、丸み 12px */
+  .card {
+    @apply bg-surface-1 border border-hairline rounded-xl;
+  }
+
+  /* 入力フィールド: 丸み 8px、フォーカス時 2px primary-focus 50% */
+  .field {
+    @apply w-full bg-surface-1 border border-hairline rounded-lg px-3 py-2 text-[15px] leading-snug text-ink placeholder:text-ink-tertiary transition-colors duration-150;
+  }
+  .field:focus {
+    @apply outline-none ring-2 ring-primary-focus/50 border-primary-focus;
+  }
+
+  /* プライマリボタン（lavender は主 CTA 専用） */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-hover active:bg-primary-focus transition-colors duration-150 select-none disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* セカンダリボタン */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium text-ink-muted bg-surface-1 border border-hairline hover:text-ink hover:bg-surface-2 hover:border-hairline-strong transition-colors duration-150 select-none disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* 危険操作（削除など） */
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium text-danger bg-danger/10 border border-danger/30 hover:bg-danger/20 hover:border-danger/50 transition-colors duration-150 select-none disabled:opacity-50 disabled:cursor-not-allowed;
+  }
 }
 
 @layer utilities {

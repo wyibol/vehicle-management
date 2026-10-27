@@ -24,13 +24,13 @@ export default function SearchForm({ onSearch, isSearching = false }: SearchForm
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="ナンバーを入力（例：品川300）"
-          className="flex-1 px-4 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="field flex-1 px-3.5 py-2.5"
           autoFocus
         />
         <button
           type="submit"
           disabled={isSearching || !query.trim()}
-          className="px-6 py-3 text-lg font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
+          className="btn-primary px-4 py-2.5 shrink-0"
         >
           {isSearching ? "検索中..." : "検索"}
         </button>
