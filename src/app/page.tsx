@@ -98,13 +98,14 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="mt-8 text-center">
+        <div className="mt-4">
           <button
             onClick={() => router.push("/vehicles/new")}
-            className="btn-primary flex items-center gap-1.5"
+            aria-label="新規車両を登録"
+            title="新規車両を登録"
+            className="btn-primary w-full rounded-xl py-3.5"
           >
-            <Plus className="w-4 h-4" strokeWidth={2} />
-            新規車両を登録
+            <Plus className="w-5 h-5" strokeWidth={2} />
           </button>
         </div>
       </div>
