@@ -86,3 +86,44 @@ CREATE POLICY "Allow all operations" ON vehicles
 --   'https://placeholder.supabase.co/storage/v1/object/public/vehicle-images/left.jpg',
 --   'https://placeholder.supabase.co/storage/v1/object/public/vehicle-images/right.jpg'
 -- );
+
+
+-- =====================================================
+-- 7. 共有メモテーブル（公共備忘録・業務記録）
+-- =====================================================
+CREATE TABLE IF NOT EXISTS notes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  content TEXT NOT NULL,
+  visibility TEXT NOT NULL DEFAULT 'public'
+    CHECK (visibility IN ('public', 'staff', 'private')),
+  tags TEXT[] DEFAULT '{}',
+  pinned BOOLEAN DEFAULT false,
+  created_by UUID,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 新しい順に並べるためのインデックス
+CREATE INDEX IF NOT EXISTS idx_notes_created_at ON notes(created_at DESC);
+
+CREATE TRIGGER trigger_notes_updated_at
+  BEFORE UPDATE ON notes
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+
+-- 公開メモは誰でも閲覧可能
+CREATE POLICY "public notes readable by all" ON notes
+  FOR SELECT TO anon
+  USING (visibility = 'public');
+
+-- 認証なしでも公開メモを投稿可能（現在は認証機能なしのため）
+CREATE POLICY "anon can insert public notes" ON notes
+  FOR INSERT TO anon
+  WITH CHECK (visibility = 'public');
+
+-- 将来アカウント機能を追加した際に有効化するポリシー例:
+-- CREATE POLICY "staff notes readable by authenticated users" ON notes
+--   FOR SELECT TO authenticated
+--   USING (visibility IN ('public', 'staff'));
