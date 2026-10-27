@@ -114,11 +114,13 @@ CREATE TRIGGER trigger_notes_updated_at
 ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
 
 -- 公開メモは誰でも閲覧可能
+DROP POLICY IF EXISTS "public notes readable by all" ON notes;
 CREATE POLICY "public notes readable by all" ON notes
   FOR SELECT TO anon
   USING (visibility = 'public');
 
 -- 認証なしでも公開メモを投稿可能（現在は認証機能なしのため）
+DROP POLICY IF EXISTS "anon can insert public notes" ON notes;
 CREATE POLICY "anon can insert public notes" ON notes
   FOR INSERT TO anon
   WITH CHECK (visibility = 'public');
