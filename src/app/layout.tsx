@@ -37,7 +37,7 @@ export default function RootLayout({
           <div className="max-w-4xl mx-auto h-14 px-4 flex items-center">
             <a href="/" aria-label="美ら島車両管理 ホーム" className="flex items-center">
               <img
-                src="/logo.png"
+                src="/logo.png?v=2"
                 alt="美ら島車両管理"
                 className="h-8 w-auto rounded-lg object-contain"
               />
