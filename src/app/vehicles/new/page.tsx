@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PhotoUpload from "@/components/PhotoUpload";
 import { uploadImage, deleteImageByUrl } from "@/lib/upload";
+import { Camera } from "lucide-react";
 
 export default function NewVehiclePage() {
   const router = useRouter();
@@ -133,7 +134,8 @@ export default function NewVehiclePage() {
         </div>
 
         <div className="card p-6">
-          <h2 className="text-[13px] font-medium text-ink-muted mb-4">
+          <h2 className="text-[13px] font-medium text-ink-muted mb-4 flex items-center gap-1.5">
+            <Camera className="w-4 h-4 text-ink-tertiary" strokeWidth={1.75} />
             写真 <span className="text-danger">*</span>
           </h2>
           <PhotoUpload photos={photos} onChange={handlePhotoChange} />

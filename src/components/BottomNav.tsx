@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home, Wrench } from "lucide-react";
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -19,10 +20,7 @@ export default function BottomNav() {
             isHome ? "text-primary" : "text-ink-tertiary hover:text-ink-muted"
           }`}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
-          </svg>
+          <Home className="w-[22px] h-[22px]" strokeWidth={1.75} />
           <span className="text-[11px] font-medium">ホーム</span>
         </Link>
         <Link
@@ -32,12 +30,7 @@ export default function BottomNav() {
             isTools ? "text-primary" : "text-ink-tertiary hover:text-ink-muted"
           }`}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7" rx="1.5" />
-            <rect x="14" y="3" width="7" height="7" rx="1.5" />
-            <rect x="3" y="14" width="7" height="7" rx="1.5" />
-            <rect x="14" y="14" width="7" height="7" rx="1.5" />
-          </svg>
+          <Wrench className="w-[22px] h-[22px]" strokeWidth={1.75} />
           <span className="text-[11px] font-medium">ツール</span>
         </Link>
       </div>

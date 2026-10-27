@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { Plus, X } from "lucide-react";
 import { resizeImage } from "@/lib/images";
 
 const POSITIONS = [
@@ -151,14 +152,12 @@ export default function PhotoUpload({ photos, onChange, existingUrls = {} }: Pho
                   }}
                   className="absolute top-1.5 right-1.5 w-7 h-7 bg-black/60 backdrop-blur border border-hairline-strong text-ink-muted rounded-full flex items-center justify-center text-sm hover:text-ink hover:bg-black/80 transition-colors"
                 >
-                  ✕
+                  <X className="w-4 h-4" strokeWidth={2} />
                 </button>
               </>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-ink-tertiary">
-                <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-                </svg>
+                <Plus className="w-8 h-8 mb-1" strokeWidth={1.5} />
                 <span className="text-xs text-ink-subtle">{label}</span>
               </div>
             )}

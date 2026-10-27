@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronRight, Plus } from "lucide-react";
 import SearchForm from "@/components/SearchForm";
 
 type Vehicle = {
@@ -90,19 +91,7 @@ export default function HomePage() {
                     </div>
                     <div className="text-xs text-ink-subtle mt-0.5">{vehicle.car_model}</div>
                   </div>
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-ink-tertiary group-hover:text-ink-muted transition-colors shrink-0"
-                  >
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
+                  <ChevronRight className="w-4 h-4 text-ink-tertiary group-hover:text-ink-muted transition-colors shrink-0" strokeWidth={2} />
                 </button>
               ))}
             </div>
@@ -112,11 +101,9 @@ export default function HomePage() {
         <div className="mt-8 text-center">
           <button
             onClick={() => router.push("/vehicles/new")}
-            className="btn-primary"
+            className="btn-primary flex items-center gap-1.5"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <Plus className="w-4 h-4" strokeWidth={2} />
             新規車両を登録
           </button>
         </div>

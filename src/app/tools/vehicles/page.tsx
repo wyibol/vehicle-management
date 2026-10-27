@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import { CarFront, ChevronRight } from "lucide-react";
 import { SkeletonCard } from "@/components/Skeleton";
 
 interface Vehicle {
@@ -92,11 +93,7 @@ export default function RegisteredVehiclesPage() {
 
       {vehicles.length === 0 ? (
         <div className="min-h-[40vh] flex flex-col items-center justify-center text-ink-tertiary">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-4">
-            <path d="M5 17h14v-5H5v5zm11.5-10.5l2 4.5H18l-1.5-4.5h-9L6 11H4.5l2-4.5h10z" />
-            <circle cx="7" cy="17" r="2" />
-            <circle cx="17" cy="17" r="2" />
-          </svg>
+          <CarFront className="w-12 h-12 mb-4" strokeWidth={1.25} />
           <p className="text-sm text-ink-subtle">登録された車両はまだありません</p>
         </div>
       ) : (
@@ -108,11 +105,7 @@ export default function RegisteredVehiclesPage() {
               className="flex items-center gap-3 p-4 rounded-xl bg-surface-1 border border-hairline hover:border-hairline-strong hover:bg-surface-2 transition-colors"
             >
               <div className="w-10 h-10 rounded-full bg-surface-2 border border-hairline flex items-center justify-center flex-shrink-0">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5e6ad2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 17h14v-5H5v5zm11.5-10.5l2 4.5H18l-1.5-4.5h-9L6 11H4.5l2-4.5h10z" />
-                  <circle cx="7" cy="17" r="2" />
-                  <circle cx="17" cy="17" r="2" />
-                </svg>
+                <CarFront className="w-5 h-5 text-primary" strokeWidth={1.5} />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[15px] font-medium text-ink tracking-[-0.2px]">{v.plate_number}</p>
@@ -127,9 +120,7 @@ export default function RegisteredVehiclesPage() {
                   })}
                 </p>
               </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#62666d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
+              <ChevronRight className="w-4 h-4 text-ink-tertiary shrink-0" strokeWidth={2} />
             </Link>
           ))}
         </div>

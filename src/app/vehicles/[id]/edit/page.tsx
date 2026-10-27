@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import PhotoUpload from "@/components/PhotoUpload";
 import { uploadImage, deleteImageByUrl } from "@/lib/upload";
 import { SkeletonDetail } from "@/components/Skeleton";
+import { Camera } from "lucide-react";
 
 type Vehicle = {
   id: string;
@@ -233,7 +234,8 @@ export default function EditVehiclePage({
         </div>
 
         <div className="card p-6">
-          <h2 className="text-[13px] font-medium text-ink-muted mb-4">
+          <h2 className="text-[13px] font-medium text-ink-muted mb-4 flex items-center gap-1.5">
+            <Camera className="w-4 h-4 text-ink-tertiary" strokeWidth={1.75} />
             写真 <span className="text-danger">*</span>
           </h2>
           <p className="text-xs text-ink-tertiary mb-3">

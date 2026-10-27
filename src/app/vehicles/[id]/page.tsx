@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import ImageViewer from "@/components/ImageViewer";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { SkeletonDetail } from "@/components/Skeleton";
+import { Pencil, Trash2, Maximize2 } from "lucide-react";
 
 type Vehicle = {
   id: string;
@@ -159,14 +160,16 @@ export default function VehicleDetailPage({
           <div className="flex gap-2 shrink-0">
             <button
               onClick={() => router.push(`/vehicles/${id}/edit`)}
-              className="btn-secondary"
+              className="btn-secondary flex items-center gap-1.5"
             >
+              <Pencil className="w-4 h-4" strokeWidth={1.75} />
               編集
             </button>
             <button
               onClick={() => setShowDeleteDialog(true)}
-              className="btn-danger"
+              className="btn-danger flex items-center gap-1.5"
             >
+              <Trash2 className="w-4 h-4" strokeWidth={1.75} />
               削除
             </button>
           </div>
@@ -189,7 +192,8 @@ export default function VehicleDetailPage({
                 className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                <span className="text-white text-xs font-medium bg-black/50 px-3 py-1 rounded-full">
+                <span className="text-white text-xs font-medium bg-black/50 px-3 py-1 rounded-full flex items-center gap-1.5">
+                  <Maximize2 className="w-3.5 h-3.5" strokeWidth={2} />
                   拡大表示
                 </span>
               </div>
