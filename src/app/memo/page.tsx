@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { SkeletonCard } from "@/components/Skeleton";
-import { Pin, PinOff, Send, StickyNote, Trash2 } from "lucide-react";
+import { AlertTriangle, Pin, PinOff, Send, StickyNote, Trash2 } from "lucide-react";
 
 type Note = {
   id: string;
@@ -32,6 +32,42 @@ function sortNotes(notes: Note[]): Note[] {
   });
 }
 
+function AlertDialog({
+  message,
+  onClose,
+}: {
+  message: string | null;
+  onClose: () => void;
+}) {
+  if (!message) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="bg-surface-2 border border-hairline rounded-xl w-full max-w-sm">
+        <div className="p-6">
+          <div className="flex items-center gap-2.5 mb-2">
+            <AlertTriangle
+              className="w-5 h-5 text-danger shrink-0"
+              strokeWidth={1.75}
+            />
+            <h3 className="text-[17px] font-semibold tracking-[-0.2px] text-ink">
+              エラー
+            </h3>
+          </div>
+          <p className="text-sm text-ink-muted leading-relaxed break-words">
+            {message}
+          </p>
+        </div>
+        <div className="px-6 pb-6 flex justify-center">
+          <button onClick={onClose} className="btn-primary px-10">
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MemoPage() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +76,7 @@ export default function MemoPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   const fetchNotes = useCallback(async () => {
     setLoading(true);
@@ -73,14 +110,14 @@ export default function MemoPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        alert(data?.error || "投稿に失敗しました");
+        setAlertMessage(data?.error || "投稿に失敗しました");
         return;
       }
       const created = await res.json();
       setNotes((prev) => sortNotes([created, ...prev]));
       setContent("");
     } catch {
-      alert("投稿に失敗しました");
+      setAlertMessage("投稿に失敗しました");
     } finally {
       setSubmitting(false);
     }
@@ -94,7 +131,7 @@ export default function MemoPage() {
         body: JSON.stringify({ pinned: !note.pinned }),
       });
       if (!res.ok) {
-        alert("ピン留めの更新に失敗しました");
+        setAlertMessage("ピン留めの更新に失敗しました");
         return;
       }
       const updated = await res.json();
@@ -102,7 +139,7 @@ export default function MemoPage() {
         sortNotes(prev.map((n) => (n.id === note.id ? updated : n)))
       );
     } catch {
-      alert("ピン留めの更新に失敗しました");
+      setAlertMessage("ピン留めの更新に失敗しました");
     }
   };
 
@@ -114,12 +151,12 @@ export default function MemoPage() {
         method: "DELETE",
       });
       if (!res.ok) {
-        alert("削除に失敗しました");
+        setAlertMessage("削除に失敗しました");
         return;
       }
       setNotes((prev) => prev.filter((n) => n.id !== deleteTarget.id));
     } catch {
-      alert("削除に失敗しました");
+      setAlertMessage("削除に失敗しました");
     } finally {
       setIsDeleting(false);
       setDeleteTarget(null);
@@ -257,6 +294,11 @@ export default function MemoPage() {
           ))}
         </div>
       )}
+
+      <AlertDialog
+        message={alertMessage}
+        onClose={() => setAlertMessage(null)}
+      />
 
       <ConfirmDialog
         isOpen={deleteTarget !== null}

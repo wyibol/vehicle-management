@@ -106,12 +106,16 @@ CREATE TABLE IF NOT EXISTS notes (
 -- 新しい順に並べるためのインデックス
 CREATE INDEX IF NOT EXISTS idx_notes_created_at ON notes(created_at DESC);
 
+DROP TRIGGER IF EXISTS trigger_notes_updated_at ON notes;
 CREATE TRIGGER trigger_notes_updated_at
   BEFORE UPDATE ON notes
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
 ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+
+-- API ロールへの権限付与（テーブルの作成方法によっては自動付与されないため明示的に）
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE notes TO anon, authenticated, service_role;
 
 -- 公開メモは誰でも閲覧可能
 DROP POLICY IF EXISTS "public notes readable by all" ON notes;
