@@ -98,14 +98,16 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="mt-8 text-center">
+        <div className="mt-4 w-full flex items-center gap-2">
           <button
             onClick={() => router.push("/vehicles/new")}
-            className="btn-primary flex items-center gap-1.5"
+            aria-label="新規車両を登録"
+            title="新規車両を登録"
+            className="btn-primary w-12 h-12 rounded-xl p-0 shrink-0"
           >
-            <Plus className="w-4 h-4" strokeWidth={2} />
-            新規車両を登録
+            <Plus className="w-5 h-5" strokeWidth={2} />
           </button>
+          {/* 今後、他の操作ボタンをここに追加 */}
         </div>
       </div>
     </div>
