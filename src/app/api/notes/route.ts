@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-
-const MAX_CONTENT_LENGTH = 2000;
-
-// 投稿内容から #タグ を抽出（重複は除く）
-function extractTags(content: string): string[] {
-  const matches = content.match(/#[^\s#]{1,30}/g) || [];
-  return Array.from(new Set(matches.map((t) => t.slice(1))));
-}
+import {
+  composeContent,
+  extractTags,
+  MAX_CONTENT_LENGTH,
+  MAX_TITLE_LENGTH,
+} from "@/lib/memo";
 
 // GET /api/notes - 共有メモ一覧を取得（公開メモのみ）
 export async function GET() {
@@ -38,18 +36,45 @@ export async function GET() {
 }
 
 // POST /api/notes - 共有メモを投稿（現在は認証なし・公開のみ）
+// body: { title, body }（大タイトル + 本文）または旧形式 { content }
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const content = typeof body?.content === "string" ? body.content.trim() : "";
+    const payload = await request.json();
 
-    if (!content) {
+    let title: string;
+    let bodyText: string;
+    if (typeof payload?.title === "string") {
+      title = payload.title;
+      bodyText = typeof payload.body === "string" ? payload.body : "";
+    } else if (typeof payload?.content === "string") {
+      const parts = payload.content.split(/\r?\n/);
+      title = parts[0] ?? "";
+      bodyText = parts.slice(1).join("\n");
+    } else {
       return NextResponse.json(
-        { error: "メモの内容を入力してください" },
+        { error: "タイトルを入力してください" },
         { status: 400 }
       );
     }
 
+    title = title.trim();
+    bodyText = bodyText.trim();
+
+    if (!title) {
+      return NextResponse.json(
+        { error: "タイトルを入力してください" },
+        { status: 400 }
+      );
+    }
+
+    if (title.length > MAX_TITLE_LENGTH) {
+      return NextResponse.json(
+        { error: `タイトルは${MAX_TITLE_LENGTH}文字以内で入力してください` },
+        { status: 400 }
+      );
+    }
+
+    const content = composeContent(title, bodyText);
     if (content.length > MAX_CONTENT_LENGTH) {
       return NextResponse.json(
         { error: `メモは${MAX_CONTENT_LENGTH}文字以内で入力してください` },

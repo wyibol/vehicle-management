@@ -1,19 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { SkeletonCard } from "@/components/Skeleton";
-import { AlertTriangle, Pin, PinOff, Send, StickyNote, Trash2 } from "lucide-react";
-
-type Note = {
-  id: string;
-  content: string;
-  tags: string[] | null;
-  pinned: boolean;
-  created_at: string;
-};
-
-const MAX_CONTENT_LENGTH = 2000;
+import {
+  AlertTriangle,
+  ChevronRight,
+  Pin,
+  PinOff,
+  Send,
+  StickyNote,
+  Trash2,
+} from "lucide-react";
+import {
+  MAX_CONTENT_LENGTH,
+  MAX_TITLE_LENGTH,
+  splitContent,
+  type Note,
+} from "@/lib/memo";
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
@@ -71,12 +76,15 @@ function AlertDialog({
 export default function MemoPage() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
+  const totalLength = title.length + body.length + (body.trim() ? 2 : 0);
 
   const fetchNotes = useCallback(async () => {
     setLoading(true);
@@ -98,15 +106,15 @@ export default function MemoPage() {
   }, [fetchNotes]);
 
   const handleSubmit = async () => {
-    const trimmed = content.trim();
-    if (!trimmed || submitting) return;
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle || submitting) return;
 
     setSubmitting(true);
     try {
       const res = await fetch("/api/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: trimmed }),
+        body: JSON.stringify({ title: trimmedTitle, body }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
@@ -115,7 +123,8 @@ export default function MemoPage() {
       }
       const created = await res.json();
       setNotes((prev) => sortNotes([created, ...prev]));
-      setContent("");
+      setTitle("");
+      setBody("");
     } catch {
       setAlertMessage("投稿に失敗しました");
     } finally {
@@ -123,7 +132,9 @@ export default function MemoPage() {
     }
   };
 
-  const togglePin = async (note: Note) => {
+  const togglePin = async (e: React.MouseEvent, note: Note) => {
+    e.preventDefault();
+    e.stopPropagation();
     try {
       const res = await fetch(`/api/notes/${note.id}`, {
         method: "PATCH",
@@ -176,27 +187,34 @@ export default function MemoPage() {
 
       {/* 投稿フォーム */}
       <div className="card p-4 mb-6">
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          maxLength={MAX_TITLE_LENGTH}
+          placeholder="タイトル（大見出し）"
+          className="field text-[17px] font-semibold tracking-[-0.2px]"
+        />
         <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
           maxLength={MAX_CONTENT_LENGTH}
-          rows={3}
-          placeholder="業務メモを入力…（例：#洗車 本日の洗車対応 完了）"
-          className="field resize-none leading-relaxed"
+          rows={4}
+          placeholder="メモ内容…（一覧には表示されず、タップして開くと表示されます）"
+          className="field resize-none leading-relaxed mt-3"
         />
         <div className="flex items-center justify-between mt-3 gap-3">
           <span
             className={`text-xs ${
-              content.length >= MAX_CONTENT_LENGTH
+              totalLength >= MAX_CONTENT_LENGTH
                 ? "text-danger"
                 : "text-ink-tertiary"
             }`}
           >
-            {content.length} / {MAX_CONTENT_LENGTH}文字
+            {totalLength} / {MAX_CONTENT_LENGTH}文字
           </span>
           <button
             onClick={handleSubmit}
-            disabled={!content.trim() || submitting}
+            disabled={!title.trim() || submitting}
             className="btn-primary"
           >
             <Send className="w-4 h-4" strokeWidth={1.75} />
@@ -205,7 +223,7 @@ export default function MemoPage() {
         </div>
       </div>
 
-      {/* メモ一覧 */}
+      {/* メモ一覧（大タイトルのみ表示、タップで詳細へ） */}
       {loading ? (
         <div className="space-y-3">
           <SkeletonCard />
@@ -236,62 +254,83 @@ export default function MemoPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {notes.map((note) => (
-            <div
-              key={note.id}
-              className={`card p-4 flex flex-col ${
-                note.pinned ? "border-primary/40" : ""
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-[15px] leading-relaxed text-ink whitespace-pre-wrap break-words flex-1">
-                  {note.content}
-                </p>
-                <div className="flex gap-0.5 shrink-0">
-                  <button
-                    onClick={() => togglePin(note)}
-                    aria-label={note.pinned ? "ピン留めを解除" : "ピン留め"}
-                    className={`p-1.5 rounded-md transition-colors ${
-                      note.pinned
-                        ? "text-primary hover:bg-primary/10"
-                        : "text-ink-tertiary hover:text-ink-muted hover:bg-surface-2"
-                    }`}
-                  >
-                    {note.pinned ? (
-                      <Pin className="w-4 h-4" strokeWidth={1.75} />
-                    ) : (
-                      <PinOff className="w-4 h-4" strokeWidth={1.75} />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => setDeleteTarget(note)}
-                    aria-label="削除"
-                    className="p-1.5 rounded-md text-ink-tertiary hover:text-danger hover:bg-danger/10 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" strokeWidth={1.75} />
-                  </button>
-                </div>
-              </div>
-
-              {note.tags && note.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-3">
-                  {note.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5"
+        <div className="space-y-3">
+          {notes.map((note) => {
+            const { title: noteTitle, body: noteBody } = splitContent(
+              note.content
+            );
+            return (
+              <Link
+                key={note.id}
+                href={`/memo/${note.id}`}
+                className={`card p-4 block transition-colors hover:border-hairline-strong ${
+                  note.pinned ? "border-primary/40" : ""
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-[17px] font-semibold tracking-[-0.2px] text-ink leading-snug break-words flex-1">
+                    {noteTitle}
+                  </p>
+                  <div className="flex gap-0.5 shrink-0">
+                    <button
+                      onClick={(e) => togglePin(e, note)}
+                      aria-label={note.pinned ? "ピン留めを解除" : "ピン留め"}
+                      className={`p-1.5 rounded-md transition-colors ${
+                        note.pinned
+                          ? "text-primary hover:bg-primary/10"
+                          : "text-ink-tertiary hover:text-ink-muted hover:bg-surface-2"
+                      }`}
                     >
-                      #{tag}
-                    </span>
-                  ))}
+                      {note.pinned ? (
+                        <Pin className="w-4 h-4" strokeWidth={1.75} />
+                      ) : (
+                        <PinOff className="w-4 h-4" strokeWidth={1.75} />
+                      )}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDeleteTarget(note);
+                      }}
+                      aria-label="削除"
+                      className="p-1.5 rounded-md text-ink-tertiary hover:text-danger hover:bg-danger/10 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" strokeWidth={1.75} />
+                    </button>
+                  </div>
                 </div>
-              )}
 
-              <p className="text-xs text-ink-tertiary mt-3">
-                {formatDate(note.created_at)}
-              </p>
-            </div>
-          ))}
+                <div className="flex items-center gap-2 mt-2.5">
+                  {note.tags && note.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 flex-1">
+                      {note.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-xs text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {noteBody && (
+                    <span className="text-[11px] text-ink-tertiary shrink-0 ml-auto">
+                      本文あり
+                    </span>
+                  )}
+                  <ChevronRight
+                    className="w-4 h-4 text-ink-tertiary shrink-0"
+                    strokeWidth={2}
+                  />
+                </div>
+
+                <p className="text-xs text-ink-tertiary mt-1.5">
+                  {formatDate(note.created_at)}
+                </p>
+              </Link>
+            );
+          })}
         </div>
       )}
 
