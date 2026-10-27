@@ -24,11 +24,11 @@ export default function RootLayout({
         <meta name="theme-color" content="#010102" />
         <meta name="description" content="車両情報管理アプリケーション" />
         <meta name="referrer" content="origin" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=2" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="apple-touch-icon" href="/images/icon-192.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
+        <link rel="apple-touch-icon" href="/images/icon-192.png?v=2" />
         <title>美ら島車両管理</title>
       </head>
       <body className="min-h-screen bg-canvas text-ink antialiased">
